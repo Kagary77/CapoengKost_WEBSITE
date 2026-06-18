@@ -1,0 +1,145 @@
+<?php
+// ============================================================
+//  VIEW: Kelola Kamar (Admin)
+// ============================================================
+
+$kamar_data = getKamarData();
+$filter     = $_GET['filter'] ?? 'semua';
+$edit_id    = (int)($_GET['edit'] ?? 0);
+$edit_kamar = null;
+if ($edit_id) {
+    foreach ($kamar_data as $k) {
+        if ($k['id'] == $edit_id) { $edit_kamar = $k; break; }
+    }
+}
+
+$filtered = $kamar_data;
+if ($filter === 'tersedia') $filtered = array_filter($kamar_data, fn($k) => $k['status']==='tersedia');
+elseif ($filter === 'terisi') $filtered = array_filter($kamar_data, fn($k) => $k['status']==='terisi');
+
+$tersedia = count(array_filter($kamar_data, fn($k) => $k['status']==='tersedia'));
+$terisi   = count($kamar_data) - $tersedia;
+?>
+
+<!-- Stats mini -->
+<div class="admin-stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.25rem;">
+  <div class="admin-stat-card"><div class="admin-stat-icon">🏠</div><div class="admin-stat-val" style="color:#1e293b;"><?= count($kamar_data) ?></div><div class="admin-stat-lbl" style="color:#475569;">Total Kamar</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-icon">✅</div><div class="admin-stat-val" style="color:#0F6E56;"><?= $tersedia ?></div><div class="admin-stat-lbl" style="color:#475569;">Tersedia</div></div>
+  <div class="admin-stat-card"><div class="admin-stat-icon">🔴</div><div class="admin-stat-val" style="color:#b91c1c;"><?= $terisi ?></div><div class="admin-stat-lbl" style="color:#475569;">Terisi</div></div>
+</div>
+
+<div class="admin-grid-2" style="align-items:start;">
+
+  <!-- Tabel Kamar -->
+  <div class="admin-card" style="grid-column: span 1;">
+    <div class="admin-card-header">
+      <span class="admin-card-title" style="color:#1e293b;">🏠 Daftar Kamar</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <?php foreach(['semua'=>'Semua','tersedia'=>'Tersedia','terisi'=>'Terisi'] as $v=>$l): ?>
+        <a href="admin.php?page=kamar&filter=<?= $v ?>"
+           class="admin-btn admin-btn-sm <?= $filter===$v?'admin-btn-primary':'admin-btn-outline' ?>"><?= $l ?></a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <div class="admin-table-wrap">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th style="color:#475569;">Kamar</th>
+            <th style="color:#475569;">Tipe</th>
+            <th style="color:#475569;">Harga</th>
+            <th style="color:#475569;">Fasilitas</th>
+            <th style="color:#475569;">Status</th>
+            <th style="color:#475569;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php foreach($filtered as $k): ?>
+        <tr>
+          <td style="font-weight:700;color:#1e293b;"><?= $k['nama'] ?></td>
+          <td><span class="admin-badge <?= strtolower($k['tipe'])==='premium'?'admin-badge-premium':'admin-badge-standard' ?>"><?= $k['tipe'] ?></span></td>
+          <td style="color:#0F6E56;font-weight:600;">Rp <?= number_format($k['harga'],0,',','.') ?></td>
+          <td style="font-size:11px;color:#475569;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?= $k['fasilitas'] ?>"><?= $k['fasilitas'] ?></td>
+          <td>
+            <form method="post" style="display:inline;">
+              <input type="hidden" name="action" value="update_status_kamar">
+              <input type="hidden" name="id" value="<?= $k['id'] ?>">
+              <select name="status" onchange="this.form.submit()"
+                style="padding:3px 6px;font-size:11px;border-radius:6px;background:#f1f5f9;border:1px solid #cbd5e1;color:#1e293b;cursor:pointer;">
+                <option value="tersedia" <?= $k['status']==='tersedia'?'selected':'' ?>>Tersedia</option>
+                <option value="terisi"   <?= $k['status']==='terisi'?'selected':'' ?>>Terisi</option>
+              </select>
+            </form>
+          </td>
+          <td>
+            <div style="display:flex;gap:5px;">
+              <a href="admin.php?page=kamar&edit=<?= $k['id'] ?>" class="admin-btn admin-btn-outline admin-btn-sm">✏️</a>
+              <form method="post" style="display:inline;" onsubmit="return confirm('Hapus kamar <?= $k['nama'] ?>?')">
+                <input type="hidden" name="action" value="hapus_kamar">
+                <input type="hidden" name="id" value="<?= $k['id'] ?>">
+                <button type="submit" class="admin-btn admin-btn-danger admin-btn-sm">🗑️</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Form Tambah / Edit Kamar -->
+  <div class="admin-card">
+    <div class="admin-card-header">
+      <span class="admin-card-title" style="color:#1e293b;"><?= $edit_kamar ? '✏️ Edit Kamar' : '➕ Tambah Kamar' ?></span>
+      <?php if($edit_kamar): ?>
+      <a href="admin.php?page=kamar" class="admin-btn admin-btn-outline admin-btn-sm">← Batal</a>
+      <?php endif; ?>
+    </div>
+    <div class="admin-card-body">
+      <form method="post">
+        <input type="hidden" name="action" value="save_kamar">
+        <input type="hidden" name="edit_id" value="<?= $edit_kamar['id'] ?? 0 ?>">
+
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label style="color:#1e293b;">Nama Kamar *</label>
+            <input type="text" name="nama" placeholder="Contoh: Kamar A5" value="<?= $edit_kamar['nama'] ?? '' ?>" required>
+          </div>
+          <div class="admin-form-group">
+            <label style="color:#1e293b;">Tipe Kamar *</label>
+            <select name="tipe" required>
+              <option value="Standard" <?= ($edit_kamar['tipe'] ?? '')==='Standard'?'selected':'' ?>>Standard</option>
+              <option value="Premium"  <?= ($edit_kamar['tipe'] ?? '')==='Premium'?'selected':'' ?>>Premium (AC)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-form-row">
+          <div class="admin-form-group">
+            <label style="color:#1e293b;">Harga / Bulan (Rp) *</label>
+            <input type="number" name="harga" placeholder="450000" value="<?= $edit_kamar['harga'] ?? '' ?>" required>
+          </div>
+          <div class="admin-form-group">
+            <label style="color:#1e293b;">Status</label>
+            <select name="status">
+              <option value="tersedia" <?= ($edit_kamar['status'] ?? 'tersedia')==='tersedia'?'selected':'' ?>>Tersedia</option>
+              <option value="terisi"   <?= ($edit_kamar['status'] ?? '')==='terisi'?'selected':'' ?>>Terisi</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="admin-form-group">
+          <label style="color:#1e293b;">Fasilitas <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#94a3b8;">(pisahkan dengan koma)</span></label>
+          <input type="text" name="fasilitas" placeholder="WiFi, Kamar Mandi Dalam, Lemari, Meja Belajar"
+                 value="<?= $edit_kamar['fasilitas'] ?? '' ?>">
+        </div>
+
+        <button type="submit" class="admin-btn admin-btn-primary" style="width:100%;">
+          <?= $edit_kamar ? '💾 Simpan Perubahan' : '➕ Tambah Kamar' ?>
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>

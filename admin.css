@@ -1,0 +1,492 @@
+/* ============================================================
+   ADMIN.CSS — Kost Putri Capoeng
+   Versi Final — Responsif & Konsisten
+   ============================================================ */
+
+:root {
+  --teal: #0F6E56;
+  --teal-light: #E1F5EE;
+  --teal-dark: #085041;
+  --text: #1a1a1a;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --bg: #f8faf9;
+  --white: #ffffff;
+  --gap: 1.25rem;
+}
+
+body {
+  background: #f8fafc;
+  color: #1a1a1a;
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.admin-body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.admin-sidebar {
+  width: 240px;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+}
+
+.admin-sidebar-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-brand {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-logo {
+  font-size: 28px;
+}
+
+.admin-brand-name {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.admin-brand-sub {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.admin-nav {
+  padding: 15px 0;
+  overflow-y: auto;
+}
+
+.admin-nav-section {
+  margin-bottom: 15px;
+}
+
+.admin-nav-label {
+  padding: 0 20px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.admin-nav-item:hover,
+.admin-nav-item.active {
+  background: var(--teal-light);
+  color: var(--teal);
+  border-right: 3px solid var(--teal);
+}
+
+.admin-nav-badge {
+  background: var(--teal);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  margin-left: auto;
+}
+
+.admin-nav-badge-warn {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.admin-sidebar-footer {
+  margin-top: auto;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.admin-user-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.admin-user-avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.admin-user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.admin-user-role {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.admin-logout-btn {
+  display: block;
+  text-align: center;
+  padding: 8px;
+  background: #fee2e2;
+  color: #991b1b;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.admin-logout-btn:hover {
+  background: #fecaca;
+}
+
+.admin-main {
+  margin-left: 240px;
+  background: var(--bg);
+  width: 100%;
+}
+
+.admin-topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+}
+
+.admin-topbar-title {
+  color: #1a1a1a;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.admin-topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ===== CARDS ===== */
+.admin-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 0;
+  overflow: hidden;
+}
+.admin-card-header {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.admin-card-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #1a1a1a;
+  margin: 0;
+}
+.admin-card-body {
+  padding: 1.25rem;
+}
+
+/* ===== STATS ===== */
+.admin-stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+}
+.admin-stat-val {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.admin-stat-lbl {
+  font-size: 11px;
+  color: #475569;
+  font-weight: 500;
+}
+.admin-stat-sub {
+  font-size: 10px;
+  color: #94a3b8;
+}
+.admin-stat-icon {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+/* ===== GRID ===== */
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.75rem;
+}
+.admin-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+@media (max-width: 992px) {
+  .admin-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== TABLE ===== */
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.admin-table th {
+  background: var(--bg);
+  color: #475569;
+  font-size: 10px;
+  text-transform: uppercase;
+  padding: 8px 10px;
+}
+.admin-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #1a1a1a;
+  font-size: 12px;
+}
+.admin-table tr:hover td {
+  background: var(--teal-light);
+}
+
+/* ===== TABEL TRANSAKSI KHUSUS ===== */
+.admin-table-transaksi th,
+.admin-table-transaksi td {
+  padding: 6px 8px;
+  font-size: 12px;
+  vertical-align: middle;
+}
+.admin-table-transaksi th {
+  font-size: 10px;
+  white-space: nowrap;
+  color: #475569;
+}
+.admin-table-transaksi td .admin-btn-sm {
+  padding: 2px 6px;
+  font-size: 10px;
+  height: 24px;
+  line-height: 1;
+}
+.admin-table-transaksi select {
+  height: 26px;
+  padding: 2px 4px;
+  font-size: 10px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #1a1a1a;
+  border-radius: 4px;
+}
+
+/* ===== FORM ===== */
+.admin-form-group label {
+  color: #1a1a1a;
+  font-size: 11px;
+  font-weight: 600;
+}
+.admin-form-group input,
+.admin-form-group select,
+.admin-form-group textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: #1a1a1a;
+  padding: 8px;
+  border-radius: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.admin-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+@media (max-width: 600px) {
+  .admin-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== BUTTONS ===== */
+.admin-btn-primary {
+  background: var(--teal);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.admin-btn-primary:hover {
+  background: var(--teal-dark);
+}
+.admin-btn-outline {
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: transparent;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.admin-btn-outline:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+.admin-btn-sm {
+  padding: 4px 10px;
+  font-size: 10px;
+  border-radius: 6px;
+}
+.admin-btn-success {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.admin-btn-success:hover {
+  background: #059669;
+}
+.admin-btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.admin-btn-danger:hover {
+  background: #dc2626;
+}
+.admin-btn-warning {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.admin-btn-warning:hover {
+  background: #d97706;
+}
+
+/* ===== BADGE ADMIN ===== */
+.admin-badge {
+  padding: 3px 8px;
+  font-size: 10px;
+  border-radius: 99px;
+  font-weight: 600;
+  display: inline-block;
+}
+.admin-badge-baru { background: #fee2e2; color: #991b1b; }
+.admin-badge-diproses { background: #fef3c7; color: #92400e; }
+.admin-badge-selesai { background: #dcfce7; color: #166534; }
+.admin-badge-lunas { background: #dcfce7; color: #166534; }
+.admin-badge-belum { background: #fee2e2; color: #991b1b; }
+.admin-badge-menunggu { background: #fef3c7; color: #92400e; }
+.admin-badge-pending { background: #fef08a; color: #854d0e; }
+.admin-badge-premium { background: #fef3c7; color: #92400e; }
+.admin-badge-standard { background: var(--teal-light); color: var(--teal-dark); }
+.admin-badge-penghuni { background: #ede9fe; color: #5b21b6; }
+
+/* ===== EMPTY STATE ===== */
+.admin-empty {
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.admin-empty-icon {
+  display: block;
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+/* ===== MISC ===== */
+.admin-page-content {
+  padding: 20px;
+}
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 4px;
+}
+.hamburger span {
+  width: 20px;
+  height: 2px;
+  background: #1a1a1a;
+  display: block;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .admin-main {
+    margin-left: 0;
+  }
+  .admin-sidebar {
+    transform: translateX(-100%);
+    transition: 0.3s;
+  }
+  .hamburger {
+    display: flex;
+  }
+}
+@media (max-width: 480px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-form-row {
+    grid-template-columns: 1fr;
+  }
+}
