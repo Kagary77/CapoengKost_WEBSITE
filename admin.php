@@ -21,7 +21,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout') {
 //  Routing admin — tentukan halaman dahulu, SEBELUM ada output apa pun
 // ------------------------------------------------------------
 $page = $_GET['page'] ?? 'dashboard';
-$valid_pages = ['dashboard', 'kamar', 'penghuni', 'komplain', 'transaksi', 'pesan'];
+$valid_pages = ['dashboard', 'kamar', 'penghuni', 'komplain', 'transaksi', 'pesan', 'booking'];
 if (!in_array($page, $valid_pages)) $page = 'dashboard';
 
 $page_map = [
@@ -31,14 +31,12 @@ $page_map = [
     'komplain'   => ['file' => 'admin/page/komplain.php',   'title' => 'Manajemen Komplain'],
     'transaksi'  => ['file' => 'admin/page/transaksi.php',  'title' => 'Manajemen Transaksi'],
     'pesan'      => ['file' => 'admin/page/pesan.php',      'title' => 'Manajemen Pesan'],
+    'booking'    => ['file' => 'admin/page/booking.php',    'title' => 'Manajemen Booking'],
 ];
 
 // ------------------------------------------------------------
 //  PENTING: proses action (POST) setiap halaman dijalankan DI SINI,
-//  sebelum admin/header.php mencetak HTML. Action boleh melakukan
-//  redirect() dengan aman karena belum ada output sama sekali.
-//  Inilah perbaikan utama dari struktur sebelumnya yang menyebabkan
-//  error "headers already sent" saat melakukan aksi di admin panel.
+//  sebelum admin/header.php mencetak HTML.
 // ------------------------------------------------------------
 $action_file = "admin/actions/{$page}.php";
 if (file_exists($action_file)) {

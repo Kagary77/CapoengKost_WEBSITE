@@ -4,7 +4,15 @@
 //  Versi Tamu + Penghuni + Admin
 // ============================================================
 
-require_once 'config.php';   // session_start() ada di dalam config.php
+require_once 'config.php';
+
+// ============================================================
+//  PROSES BOOKING TAMU (POST) — ditangani di sini
+// ============================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booking_kamar_tamu') {
+    require 'actions/booking.php';
+    exit;
+}
 
 // ------------------------------------------------------------
 //  LOGOUT
@@ -79,10 +87,7 @@ $page_map = [
 
 // ------------------------------------------------------------
 //  PENTING: proses action (POST) setiap halaman dijalankan DI SINI,
-//  sebelum includes/header.php mencetak HTML. Action boleh melakukan
-//  redirect() dengan aman karena belum ada output sama sekali.
-//  Ini memperbaiki bug "headers already sent" yang sebelumnya muncul
-//  saat mengirim komplain, booking, bayar, ganti profil, dll.
+//  sebelum includes/header.php mencetak HTML.
 // ------------------------------------------------------------
 if (!$needs_login) {
     $action_file = "actions/{$page}.php";

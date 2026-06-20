@@ -6,14 +6,26 @@ elseif ($filter === 'premium') $kamar_data = array_filter($kamar_data, fn($k) =>
 elseif ($filter === 'tersedia') $kamar_data = array_filter($kamar_data, fn($k) => $k['status']==='tersedia');
 $loggedIn  = isLoggedIn();
 $user_kamar = $_SESSION['user_kamar'] ?? null;
+$booked_success = isset($_GET['booked']);
 ?>
 
 <!-- Info Tamu -->
 <?php if (!$loggedIn): ?>
 <div class="alert alert-info mb-2" style="display:flex;align-items:center;gap:10px;">
   <span style="font-size:1.1rem;">ℹ️</span>
-  <span>Kamu browsing sebagai tamu. Kamu bisa melihat katalog dan memesan kamar.
-  <a href="#" onclick="openLoginModal('kamar');return false;" style="color:var(--teal-dark);font-weight:700;">Login</a> untuk akses fitur lengkap.</span>
+  <span>Kamu browsing sebagai tamu. Kamu bisa booking kamar langsung di sini.
+  <a href="#" onclick="openLoginModal('kamar');return false;" style="color:var(--teal-dark);font-weight:700;">Login</a> untuk akses fitur penghuni.</span>
+</div>
+<?php endif; ?>
+
+<!-- Notifikasi booking berhasil -->
+<?php if ($booked_success): ?>
+<div class="alert alert-success mb-3" style="display:flex;align-items:center;gap:12px;">
+  <span style="font-size:1.4rem;">🎉</span>
+  <div>
+    <strong>Booking berhasil dikirim!</strong><br>
+    <span style="font-size:12px;">Admin akan menghubungi kamu via WhatsApp untuk konfirmasi.</span>
+  </div>
 </div>
 <?php endif; ?>
 
@@ -65,14 +77,13 @@ $user_kamar = $_SESSION['user_kamar'] ?? null;
 
       <?php if($k['status']==='tersedia'): ?>
         <?php if ($loggedIn && !empty($user_kamar) && $user_kamar !== '-'): ?>
-          <!-- User sudah punya kamar → tombol disabled -->
           <div style="background:var(--bg);color:var(--text-light);text-align:center;cursor:not-allowed;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13px;font-weight:600;">
             🔒 Kamu sudah punya kamar
           </div>
         <?php else: ?>
-          <button onclick="openBookingModal(<?= $k['id'] ?>, '<?= htmlspecialchars($k['nama']) ?>', <?= $k['harga'] ?>)"
+          <button onclick="openBookingModalTamu('<?= htmlspecialchars($k['nama']) ?>', <?= $k['harga'] ?>)"
             class="btn btn-primary" style="width:100%;display:block;text-align:center;border-radius:8px;">
-            📅 Pesan Kamar Ini
+            📅 Booking Kamar
           </button>
         <?php endif; ?>
       <?php else: ?>

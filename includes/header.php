@@ -42,11 +42,88 @@ unset($_SESSION['login_error']);
     <div class="modal-actions">
       <button onclick="closeLoginModal()" class="btn btn-outline" style="flex:1;">Kembali</button>
     </div>
-
   </div>
 </div>
 
-<!-- ===== MODAL: Booking / Pesan Kamar ===== -->
+<!-- ===== MODAL: Booking Kamar untuk Tamu ===== -->
+<div class="modal-overlay" id="bookingModalTamu">
+  <div class="modal-box" style="max-width:440px;text-align:left;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+      <div style="font-weight:700;font-size:15px;" id="bookingTamuName">📅 Booking Kamar</div>
+      <button type="button" onclick="closeBookingModalTamu()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:#94a3b8;">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:1.25rem;" id="bookingTamuHarga"></div>
+
+    <?php if ($loggedIn): ?>
+    <div class="alert alert-warning" style="margin-bottom:1rem;font-size:12px;">
+      ⚠️ Kamu sudah login. Booking ini akan terhubung dengan akun kamu.
+    </div>
+    <?php else: ?>
+    <div class="alert alert-info" style="margin-bottom:1rem;font-size:12px;background:var(--teal-xlight);border-color:#9FE1CB;color:var(--teal-dark);">
+      💡 Booking sebagai tamu. Admin akan menghubungi kamu via WhatsApp untuk konfirmasi.
+    </div>
+    <?php endif; ?>
+
+    <form method="post" enctype="multipart/form-data" action="index.php?page=kamar">
+      <input type="hidden" name="action" value="booking_kamar_tamu">
+      <input type="hidden" name="kamar_nama" id="booking_tamu_kamar_nama">
+      <input type="hidden" name="kamar_harga" id="booking_tamu_kamar_harga">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input type="text" name="nama" placeholder="Nama lengkap" value="<?= htmlspecialchars($_SESSION['user_nama'] ?? '') ?>" required>
+        </div>
+        <div class="form-group">
+          <label>No. WhatsApp *</label>
+          <input type="text" name="no_hp" placeholder="08xxxxxxxxxx" value="<?= htmlspecialchars($_SESSION['user_hp'] ?? '') ?>" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Periode Sewa (Mulai Bulan) *</label>
+        <input type="month" name="periode" required>
+      </div>
+
+      <div class="form-group">
+        <label>Metode Pembayaran *</label>
+        <select name="metode" required>
+          <option value="">— Pilih metode —</option>
+          <option>Transfer Bank (BRI)</option>
+          <option>Transfer Bank (BCA)</option>
+          <option>QRIS</option>
+          <option>GoPay</option>
+          <option>OVO</option>
+          <option>Dana</option>
+          <option>Tunai</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Upload Bukti Pembayaran *</label>
+        <div class="file-drop">
+          <input type="file" name="bukti" accept="image/*" onchange="handleFileUpload(this,'fileLabelBooking')" required>
+          <span class="file-drop-icon">📷</span>
+          <div class="file-drop-text" id="fileLabelBooking">
+            <strong>Klik untuk upload bukti</strong><br>JPG, PNG, WEBP — maks 5MB
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--teal-light);border-radius:8px;padding:10px 12px;font-size:11px;color:var(--teal-dark);margin-bottom:1rem;">
+        <strong>Rekening BRI:</strong> 1234-5678-9012-3456 a.n. Lukyta Surawijaya<br>
+        <span style="opacity:.8;">Konfirmasi pembayaran via WhatsApp: 0812-3456-7890</span>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button type="button" onclick="closeBookingModalTamu()" class="btn btn-outline" style="flex:1;">Batal</button>
+        <button type="submit" class="btn btn-primary" style="flex:1;">📅 Kirim Booking</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL: Booking / Pesan Kamar (Lama untuk user login) ===== -->
 <div class="modal-overlay" id="bookingModal">
   <div class="modal-box" style="max-width:440px;text-align:left;">
     <div style="font-weight:700;font-size:15px;margin-bottom:.25rem;" id="bookingKamarName">Pesan Kamar</div>
@@ -120,7 +197,6 @@ unset($_SESSION['login_error']);
       <!-- Menu publik — semua bisa akses -->
       <div class="nav-section">
         <div class="nav-section-title">Menu Utama</div>
-
         <a href="index.php?page=beranda" class="nav-item <?= ($activePage==='beranda')?'active':'' ?>">
           <span class="nav-icon">🏠</span> Beranda
         </a>
@@ -172,7 +248,6 @@ unset($_SESSION['login_error']);
 
     <!-- ===== FOOTER SIDEBAR ===== -->
     <?php if ($loggedIn): ?>
-    <!-- Sudah login: tampilkan profil + logout -->
     <div class="sidebar-footer">
       <div class="user-card">
         <div class="user-avatar"><?= strtoupper(substr($_SESSION['user_nama'] ?? 'U', 0, 1)) ?></div>
@@ -187,9 +262,7 @@ unset($_SESSION['login_error']);
         <span>🚪</span> Keluar
       </a>
     </div>
-
     <?php else: ?>
-    <!-- Tamu: panel login compact di bawah sidebar -->
     <div class="sidebar-guest-footer">
       <p>Sudah punya akun?</p>
       <?php if ($login_err): ?>
@@ -212,7 +285,6 @@ unset($_SESSION['login_error']);
           Masuk →
         </button>
       </form>
-
     </div>
     <?php endif; ?>
   </aside>

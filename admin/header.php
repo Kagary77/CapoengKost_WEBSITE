@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css"> 
+<link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="admin.css">
 </head>
 <body class="admin-body">
@@ -27,6 +27,16 @@ if ($db_pesan) {
     $pesan_baru = $row['total'] ?? 0;
 } else {
     $pesan_baru = count(array_filter($_SESSION['demo_pesan'] ?? [], fn($p) => $p['status'] === 'baru'));
+}
+
+// Hitung booking menunggu
+$db_booking = getDB();
+if ($db_booking) {
+    $result = $db_booking->query("SELECT COUNT(*) as total FROM tb_booking WHERE status='menunggu'");
+    $row = $result->fetch_assoc();
+    $booking_baru = $row['total'] ?? 0;
+} else {
+    $booking_baru = count(array_filter($_SESSION['demo_booking'] ?? [], fn($b) => $b['status'] === 'menunggu'));
 }
 ?>
 
@@ -72,16 +82,22 @@ if ($db_pesan) {
           <span class="admin-nav-badge admin-nav-badge-warn"><?= $belum_bayar ?></span>
           <?php endif; ?>
         </a>
-        <!-- ===== MENU PESAN ===== -->
         <a href="admin.php?page=pesan" class="admin-nav-item <?= $activePage==='pesan'?'active':'' ?>">
           <span class="ani">📩</span> Pesan
           <?php if($pesan_baru > 0): ?>
           <span class="admin-nav-badge" style="background:#dc2626;"><?= $pesan_baru ?></span>
           <?php endif; ?>
         </a>
+        <!-- ===== MENU BOOKING ===== -->
+        <a href="admin.php?page=booking" class="admin-nav-item <?= $activePage==='booking'?'active':'' ?>">
+          <span class="ani">📋</span> Booking
+          <?php if($booking_baru > 0): ?>
+          <span class="admin-nav-badge" style="background:#d97706;"><?= $booking_baru ?></span>
+          <?php endif; ?>
+        </a>
       </div>
     </nav>
-    
+
     <div class="admin-sidebar-footer">
       <div class="admin-user-card">
         <div class="admin-user-avatar">

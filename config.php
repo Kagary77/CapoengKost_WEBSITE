@@ -240,7 +240,7 @@ function hapusKomplain($id) {
 }
 
 // ============================================================
-//  FUNGSI PESAN
+//  PESAN
 // ============================================================
 function getPesanAll() {
     $db = getDB();
@@ -275,6 +275,59 @@ function updateStatusPesan($id, $status) {
     }
     $stmt = $db->prepare("UPDATE tb_pesan SET status = ? WHERE id = ?");
     $stmt->bind_param('si', $status, $id);
+    return $stmt->execute();
+}
+
+// ============================================================
+//  BOOKING
+// ============================================================
+function getBookingAll() {
+    $db = getDB();
+    if (!$db) return $_SESSION['demo_booking'] ?? [];
+    $result = $db->query("SELECT * FROM tb_booking ORDER BY id DESC");
+    $rows = [];
+    while ($row = $result->fetch_assoc()) $rows[] = $row;
+    return $rows;
+}
+
+function konfirmasiBooking($id) {
+    $db = getDB();
+    if (!$db) {
+        foreach ($_SESSION['demo_booking'] as &$b) {
+            if ($b['id'] == $id) { $b['status'] = 'disetujui'; break; }
+        }
+        unset($b);
+        return true;
+    }
+    $stmt = $db->prepare("UPDATE tb_booking SET status = 'disetujui' WHERE id = ?");
+    $stmt->bind_param('i', $id);
+    return $stmt->execute();
+}
+
+function tolakBooking($id) {
+    $db = getDB();
+    if (!$db) {
+        foreach ($_SESSION['demo_booking'] as &$b) {
+            if ($b['id'] == $id) { $b['status'] = 'ditolak'; break; }
+        }
+        unset($b);
+        return true;
+    }
+    $stmt = $db->prepare("UPDATE tb_booking SET status = 'ditolak' WHERE id = ?");
+    $stmt->bind_param('i', $id);
+    return $stmt->execute();
+}
+
+function hapusBooking($id) {
+    $db = getDB();
+    if (!$db) {
+        $_SESSION['demo_booking'] = array_values(
+            array_filter($_SESSION['demo_booking'] ?? [], fn($b) => $b['id'] != $id)
+        );
+        return true;
+    }
+    $stmt = $db->prepare("DELETE FROM tb_booking WHERE id = ?");
+    $stmt->bind_param('i', $id);
     return $stmt->execute();
 }
 
@@ -357,4 +410,5 @@ if (!dbAvailable()) {
     if (!isset($_SESSION['demo_komplain']))  $_SESSION['demo_komplain']  = [];
     if (!isset($_SESSION['demo_transaksi'])) $_SESSION['demo_transaksi'] = [];
     if (!isset($_SESSION['demo_pesan']))     $_SESSION['demo_pesan']     = [];
+    if (!isset($_SESSION['demo_booking']))   $_SESSION['demo_booking']   = [];
 }

@@ -1,4 +1,4 @@
-    </main>
+</main>
   </div><!-- end main-content -->
 </div><!-- end app-layout -->
 
@@ -32,7 +32,19 @@ function requireLogin(page) {
   openLoginModal(page);
 }
 
-// ===== MODAL: BOOKING KAMAR =====
+// ===== MODAL: BOOKING TAMU =====
+function openBookingModalTamu(nama, harga) {
+  document.getElementById('booking_tamu_kamar_nama').value = nama;
+  document.getElementById('booking_tamu_kamar_harga').value = harga;
+  document.getElementById('bookingTamuName').textContent = '📅 Booking ' + nama;
+  document.getElementById('bookingTamuHarga').textContent = 'Rp ' + Number(harga).toLocaleString('id-ID') + ' / bulan';
+  document.getElementById('bookingModalTamu').classList.add('show');
+}
+function closeBookingModalTamu() {
+  document.getElementById('bookingModalTamu').classList.remove('show');
+}
+
+// ===== MODAL: BOOKING KAMAR (Lama) =====
 function openBookingModal(id, nama, harga) {
   document.getElementById('booking_kamar_id').value    = id;
   document.getElementById('booking_kamar_nama').value  = nama;
