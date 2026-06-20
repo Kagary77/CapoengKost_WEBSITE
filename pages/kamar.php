@@ -57,12 +57,29 @@ $booked_success = isset($_GET['booked']);
 </div>
 <?php else: ?>
 <div class="kamar-grid">
-  <?php foreach($kamar_data as $k): ?>
+  <?php foreach($kamar_data as $k): 
+    // Cek apakah ada foto dan file exists
+    $has_foto = false;
+    $foto_url = '';
+    if (!empty($k['foto'])) {
+        $foto_path = 'uploads/' . $k['foto'];
+        // Ganti spasi dengan %20 untuk URL
+        $foto_url_encoded = str_replace(' ', '%20', $foto_path);
+        // Cek file exists dengan path asli
+        if (file_exists($foto_path)) {
+            $has_foto = true;
+            $foto_url = $foto_url_encoded;
+        }
+    }
+  ?>
   <div class="kamar-card">
-    <div class="kamar-thumb kamar-thumb-<?= $k['tipe']==='Premium'?'prm':'std' ?>">
-      <span><?= $k['tipe']==='Premium' ? '🏠' : '🛏️' ?></span>
-      <span class="badge badge-<?= strtolower($k['tipe']) ?>" style="position:absolute;top:10px;left:10px;"><?= $k['tipe'] ?></span>
-      <span class="badge badge-<?= $k['status']==='tersedia'?'tersedia':'terisi' ?>" style="position:absolute;top:10px;right:10px;">
+    <div class="kamar-thumb <?= $k['tipe']==='Premium'?'kamar-thumb-prm':'kamar-thumb-std' ?>" 
+         style="<?= $has_foto ? 'background-image:url('.$foto_url.');background-size:cover;background-position:center;' : '' ?>">
+      <?php if (!$has_foto): ?>
+        <span style="font-size:2rem;"><?= $k['tipe']==='Premium' ? '🏠' : '🛏️' ?></span>
+      <?php endif; ?>
+      <span class="badge badge-<?= strtolower($k['tipe']) ?>" style="position:absolute;top:10px;left:10px;z-index:2;"><?= $k['tipe'] ?></span>
+      <span class="badge badge-<?= $k['status']==='tersedia'?'tersedia':'terisi' ?>" style="position:absolute;top:10px;right:10px;z-index:2;">
         <?= $k['status']==='tersedia'?'Tersedia':'Terisi' ?>
       </span>
     </div>
@@ -77,12 +94,10 @@ $booked_success = isset($_GET['booked']);
 
       <?php if($k['status']==='tersedia'): ?>
         <?php if ($loggedIn && !empty($user_kamar) && $user_kamar !== '-'): ?>
-          <!-- User sudah punya kamar → tombol disabled -->
           <div style="background:var(--bg);color:var(--text-light);text-align:center;cursor:not-allowed;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13px;font-weight:600;">
             🔒 Kamu sudah punya kamar
           </div>
         <?php else: ?>
-          <!-- Tombol booking untuk tamu atau user belum punya kamar -->
           <button onclick="openBookingModalTamu('<?= htmlspecialchars($k['nama']) ?>', <?= $k['harga'] ?>)"
             class="btn btn-primary" style="width:100%;display:block;text-align:center;border-radius:8px;">
             📅 Booking Kamar

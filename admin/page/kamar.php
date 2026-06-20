@@ -51,6 +51,7 @@ $terisi   = count($kamar_data) - $tersedia;
             <th style="color:#475569;">Harga</th>
             <th style="color:#475569;">Fasilitas</th>
             <th style="color:#475569;">Status</th>
+            <th style="color:#475569;">Foto</th>
             <th style="color:#475569;">Aksi</th>
           </tr>
         </thead>
@@ -66,6 +67,13 @@ $terisi   = count($kamar_data) - $tersedia;
               <span class="admin-badge admin-badge-terisi" style="background:#fee2e2;color:#991b1b;">Terisi</span>
             <?php else: ?>
               <span class="admin-badge admin-badge-tersedia" style="background:#dcfce7;color:#166534;">Tersedia</span>
+            <?php endif; ?>
+          </td>
+          <td>
+            <?php if (!empty($k['foto'])): ?>
+              <a href="uploads/<?= $k['foto'] ?>" target="_blank" class="admin-btn admin-btn-outline admin-btn-sm" title="Lihat Foto">📷</a>
+            <?php else: ?>
+              <span style="color:#94a3b8;font-size:10px;">-</span>
             <?php endif; ?>
           </td>
           <td>
@@ -94,7 +102,7 @@ $terisi   = count($kamar_data) - $tersedia;
       <?php endif; ?>
     </div>
     <div class="admin-card-body">
-      <form method="post">
+      <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="action" value="save_kamar">
         <input type="hidden" name="edit_id" value="<?= $edit_kamar['id'] ?? 0 ?>">
 
@@ -136,6 +144,24 @@ $terisi   = count($kamar_data) - $tersedia;
           <label style="color:#1e293b;">Fasilitas <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#94a3b8;">(pisahkan dengan koma)</span></label>
           <input type="text" name="fasilitas" placeholder="WiFi, Kamar Mandi Dalam, Lemari, Meja Belajar"
                  value="<?= $edit_kamar['fasilitas'] ?? '' ?>">
+        </div>
+
+        <!-- ===== FOTO KAMAR ===== -->
+        <div class="admin-form-group">
+          <label style="color:#1e293b;">Foto Kamar <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#94a3b8;">(opsional, max 5MB)</span></label>
+          <?php if ($edit_kamar && !empty($edit_kamar['foto'])): ?>
+            <div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+              <a href="uploads/<?= $edit_kamar['foto'] ?>" target="_blank" class="admin-btn admin-btn-outline admin-btn-sm">📷 Lihat Foto Saat Ini</a>
+              <span style="font-size:11px;color:#94a3b8;">Upload baru untuk mengganti</span>
+            </div>
+          <?php endif; ?>
+          <div class="file-drop" style="padding:1rem;">
+            <input type="file" name="foto" accept="image/*" onchange="handleFileUpload(this,'fileLabelKamar')">
+            <span class="file-drop-icon">🖼️</span>
+            <div class="file-drop-text" id="fileLabelKamar">
+              <strong>Klik untuk upload foto</strong><br>JPG, PNG, WEBP — maks 5MB
+            </div>
+          </div>
         </div>
 
         <button type="submit" class="admin-btn admin-btn-primary" style="width:100%;">

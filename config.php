@@ -55,7 +55,8 @@ function uploadBukti($file) {
     $target_dir = "uploads/pembayaran/";
     if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
 
-    $filename = time() . '_' . basename($file['name']);
+    $clean_name = str_replace(' ', '_', basename($file['name']));
+    $filename = time() . '_' . $clean_name;
     $target_file = $target_dir . $filename;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -78,7 +79,8 @@ function uploadFotoKomplain($file) {
     $target_dir = "uploads/komplain/";
     if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
 
-    $filename = time() . '_' . basename($file['name']);
+    $clean_name = str_replace(' ', '_', basename($file['name']));
+    $filename = time() . '_' . $clean_name;
     $target_file = $target_dir . $filename;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -101,7 +103,8 @@ function uploadFotoKTP($file) {
     $target_dir = "uploads/ktp/";
     if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
 
-    $filename = time() . '_' . basename($file['name']);
+    $clean_name = str_replace(' ', '_', basename($file['name']));
+    $filename = time() . '_' . $clean_name;
     $target_file = $target_dir . $filename;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
@@ -115,6 +118,43 @@ function uploadFotoKTP($file) {
         return 'ktp/' . $filename;
     }
     return false;
+}
+
+// ============================================================
+//  UPLOAD FOTO KAMAR → uploads/kamar/
+// ============================================================
+function uploadFotoKamar($file) {
+    $target_dir = "uploads/kamar/";
+    if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
+
+    // Ganti spasi dengan underscore agar URL aman
+    $clean_name = str_replace(' ', '_', basename($file['name']));
+    $filename = time() . '_' . $clean_name;
+    $target_file = $target_dir . $filename;
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+    $check = getimagesize($file['tmp_name']);
+    if ($check === false) return false;
+
+    if (!in_array($imageFileType, ['jpg','jpeg','png','gif','webp'])) return false;
+    if ($file['size'] > 5000000) return false;
+
+    if (move_uploaded_file($file['tmp_name'], $target_file)) {
+        return 'kamar/' . $filename;
+    }
+    return false;
+}
+
+// ============================================================
+//  HAPUS FOTO KAMAR
+// ============================================================
+function hapusFotoKamar($filename) {
+    if (empty($filename)) return true;
+    $filepath = "uploads/" . $filename;
+    if (file_exists($filepath)) {
+        return unlink($filepath);
+    }
+    return true;
 }
 
 // ============================================================
@@ -355,7 +395,7 @@ function hapusBooking($id) {
 }
 
 // ============================================================
-//  USER / AUTH (dengan foto KTP)
+//  USER / AUTH
 // ============================================================
 function loginUser($email, $password) {
     $db = getDB();
