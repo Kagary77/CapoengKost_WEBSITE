@@ -37,6 +37,7 @@ $kamar_names = array_column($kamar_data, 'nama');
             <th style="color:#475569;">Kontak</th>
             <th style="color:#475569;">Pekerjaan</th>
             <th style="color:#475569;">Status Kamar</th>
+            <th style="color:#475569;">KTP</th>
             <th style="color:#475569;">Aksi</th>
           </tr>
         </thead>
@@ -54,7 +55,6 @@ $kamar_names = array_column($kamar_data, 'nama');
           </td>
           <td>
             <?php
-            // Cari status kamar
             $status_kamar = 'Tersedia';
             $status_color = '#dcfce7';
             $status_text_color = '#166534';
@@ -72,6 +72,13 @@ $kamar_names = array_column($kamar_data, 'nama');
             <span style="background:<?= $status_color ?>;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;color:<?= $status_text_color ?>;">
               <?= $status_kamar ?>
             </span>
+          </td>
+          <td>
+            <?php if (!empty($p['foto_ktp'])): ?>
+              <a href="uploads/<?= $p['foto_ktp'] ?>" target="_blank" class="admin-btn admin-btn-outline admin-btn-sm" title="Lihat KTP">🪪</a>
+            <?php else: ?>
+              <span style="color:#94a3b8;font-size:10px;">-</span>
+            <?php endif; ?>
           </td>
           <td>
             <div style="display:flex;gap:4px;flex-wrap:wrap;">

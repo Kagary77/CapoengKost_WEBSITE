@@ -13,7 +13,6 @@ $komplain_done = count(array_filter($komplain_all, fn($k) => $k['status'] === 's
 
 $lunas         = array_filter($transaksi_all, fn($t) => $t['status'] === 'lunas');
 $belum_bayar   = array_filter($transaksi_all, fn($t) => $t['status'] === 'belum_bayar');
-$menunggu      = array_filter($transaksi_all, fn($t) => $t['status'] === 'menunggu_konfirmasi');
 $pending       = array_filter($transaksi_all, fn($t) => $t['status'] === 'pending');
 $total_pendapatan = array_sum(array_column(array_values($lunas), 'jumlah'));
 
@@ -52,7 +51,6 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
 <!-- Row 2: Quick Action + Status Kamar -->
 <div class="admin-grid-2">
 
-  <!-- Aksi Cepat -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">⚡ Aksi Cepat</span>
@@ -79,7 +77,6 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
     </div>
   </div>
 
-  <!-- Status Kamar Visual -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">🏠 Status Hunian Kamar</span>

@@ -7,6 +7,7 @@ $user = [
     'alamat'    => $_SESSION['user_alamat']    ?? '-',
     'pekerjaan' => $_SESSION['user_pekerjaan'] ?? '-',
     'role'      => $_SESSION['user_role']      ?? 'penghuni',
+    'foto_ktp'  => $_SESSION['user_foto_ktp']  ?? null,
 ];
 $inisial = strtoupper(implode('', array_map(fn($w)=>$w[0], explode(' ', $user['nama']))));
 $inisial = substr($inisial, 0, 2);
@@ -44,6 +45,12 @@ $trans_lunas   = array_filter($trans_user, fn($t) => $t['status'] === 'lunas');
         <span>Pekerjaan</span>
         <span><?= $user['pekerjaan'] ?></span>
       </div>
+      <?php if ($user['foto_ktp']): ?>
+      <div class="profile-info-row">
+        <span>Foto KTP</span>
+        <span><a href="uploads/<?= $user['foto_ktp'] ?>" target="_blank" class="btn btn-outline btn-sm">📷 Lihat</a></span>
+      </div>
+      <?php endif; ?>
     </div>
 
     <div class="card mt-2">
@@ -72,7 +79,7 @@ $trans_lunas   = array_filter($trans_user, fn($t) => $t['status'] === 'lunas');
       </div>
       <div class="card-body">
         <?php if(isset($error)): ?><div class="alert alert-error mb-2"><?= $error ?></div><?php endif; ?>
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
           <input type="hidden" name="action" value="update_profil">
           <div class="form-row">
             <div class="form-group">
@@ -103,6 +110,25 @@ $trans_lunas   = array_filter($trans_user, fn($t) => $t['status'] === 'lunas');
             <label>Alamat Asal</label>
             <textarea name="alamat" rows="2" placeholder="Alamat asal kamu"><?= htmlspecialchars($user['alamat'] === '-' ? '' : $user['alamat']) ?></textarea>
           </div>
+
+          <!-- ===== FOTO KTP ===== -->
+          <div class="form-group">
+            <label>Foto KTP <span class="text-muted">(opsional, max 5MB)</span></label>
+            <?php if ($user['foto_ktp']): ?>
+              <div style="margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+                <a href="uploads/<?= $user['foto_ktp'] ?>" target="_blank" class="btn btn-outline btn-sm">📷 Lihat KTP Saat Ini</a>
+                <span style="font-size:11px;color:#94a3b8;">Upload baru untuk mengganti</span>
+              </div>
+            <?php endif; ?>
+            <div class="file-drop">
+              <input type="file" name="foto_ktp" accept="image/*" onchange="handleFileUpload(this,'fileLabelKTP')">
+              <span class="file-drop-icon">🪪</span>
+              <div class="file-drop-text" id="fileLabelKTP">
+                <strong>Klik untuk upload KTP</strong><br>JPG, PNG, WEBP — maks 5MB
+              </div>
+            </div>
+          </div>
+
           <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
         </form>
       </div>

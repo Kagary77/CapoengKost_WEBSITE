@@ -12,12 +12,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     $pekerjaan = sanitize($_POST['pekerjaan'] ?? '');
 
     if ($nama) {
-        updateUserProfile($_SESSION['user_id'] ?? 0, $nama, $nohp, $alamat, $pekerjaan);
+        // Upload foto KTP jika ada
+        $foto_ktp = null;
+        if (isset($_FILES['foto_ktp']) && $_FILES['foto_ktp']['error'] === UPLOAD_ERR_OK) {
+            $foto_ktp = uploadFotoKTP($_FILES['foto_ktp']);
+            if (!$foto_ktp) {
+                $_SESSION['toast_msg']  = 'Gagal upload foto KTP. Pastikan file gambar (max 5MB).';
+                $_SESSION['toast_type'] = 'error';
+                redirect('index.php?page=profil');
+                exit;
+            }
+        }
+
+        updateUserProfile($_SESSION['user_id'] ?? 0, $nama, $nohp, $alamat, $pekerjaan, $foto_ktp);
         $_SESSION['toast_msg']  = 'Data diri berhasil diperbarui! ✅';
         $_SESSION['toast_type'] = 'success';
         redirect('index.php?page=profil');
     }
-    // Dibaca oleh view (pages/profile.php) jika validasi gagal
     $error = 'Nama tidak boleh kosong.';
 }
 
@@ -39,5 +50,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'ganti
         $_SESSION['toast_type'] = 'success';
         redirect('index.php?page=profil');
     }
-    // $pass_error (jika ada) dibaca oleh view (pages/profile.php)
 }

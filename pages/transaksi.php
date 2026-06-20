@@ -6,7 +6,6 @@ $user_id    = $_SESSION['user_id']   ?? 0;
 $my_trans    = getMyTransaksi();
 $lunas_list  = array_values(array_filter($my_trans, fn($t) => $t['status'] === 'lunas'));
 $belum_list  = array_values(array_filter($my_trans, fn($t) => $t['status'] === 'belum_bayar'));
-$tunggu_list = array_values(array_filter($my_trans, fn($t) => $t['status'] === 'menunggu_konfirmasi'));
 $pending_list = array_values(array_filter($my_trans, fn($t) => $t['status'] === 'pending'));
 $total_masuk = array_sum(array_column($lunas_list, 'jumlah'));
 $total_belum = array_sum(array_column($belum_list, 'jumlah'));
@@ -74,44 +73,7 @@ $booked = isset($_GET['booked']);
   </div>
 </div>
 
-<?php if (!empty($tunggu_list)): ?>
-<div class="card mb-3" style="border-color:#FAC775;">
-  <div class="card-header" style="background:var(--amber-light);">
-    <span class="card-title">🔔 Booking Menunggu Konfirmasi</span>
-    <span class="badge badge-diproses"><?= count($tunggu_list) ?> booking</span>
-  </div>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <?php if (isAdmin()): ?><th>Nama</th><?php endif; ?>
-          <th>Kamar</th><th>Bulan Sewa</th><th>Jumlah</th>
-          <th>Metode</th><th>Tgl Booking</th><th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-      <?php foreach (array_reverse($tunggu_list) as $t): ?>
-      <tr>
-        <?php if (isAdmin()): ?>
-        <td style="color:#1a1a1a;"><?= htmlspecialchars($t['nama']) ?></td>
-        <?php endif; ?>
-        <td><strong style="color:#0F6E56;"><?= $t['no_kamar'] ?></strong></td>
-        <td style="color:#475569;"><?= $t['bulan'] ?></td>
-        <td style="font-weight:700;color:var(--amber);">Rp <?= number_format($t['jumlah'], 0, ',', '.') ?></td>
-        <td class="text-sm text-muted"><?= $t['metode'] ?></td>
-        <td class="text-sm text-muted"><?= $t['tanggal'] ?></td>
-        <td><span class="badge badge-diproses">Menunggu</span></td>
-      </tr>
-      <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
-  <div style="padding:.85rem 1.4rem;background:var(--amber-light);font-size:12px;color:#92400e;border-top:1px solid #FAC775;border-radius:0 0 var(--radius-lg) var(--radius-lg);">
-    💡 Pengelola akan menghubungi via WhatsApp untuk konfirmasi pembayaran dalam 1×24 jam.
-  </div>
-</div>
-<?php endif; ?>
-
+<!-- ===== TAGIHAN BELUM BAYAR ===== -->
 <?php if (!empty($belum_list)): ?>
 <div class="card mb-3" style="border-color:#fecaca;">
   <div class="card-header" style="background:#fff5f5;">
@@ -161,6 +123,46 @@ $booked = isset($_GET['booked']);
 </div>
 <?php endif; ?>
 
+<!-- ===== MENUNGGU VALIDASI (PENDING) ===== -->
+<?php if (!empty($pending_list)): ?>
+<div class="card mb-3" style="border-color:#fef08a;">
+  <div class="card-header" style="background:#fef08a;">
+    <span class="card-title">⏳ Menunggu Validasi Admin</span>
+    <span class="badge badge-pending"><?= count($pending_list) ?> tagihan</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <?php if (isAdmin()): ?><th>Nama</th><?php endif; ?>
+          <th>Kamar</th><th>Periode</th><th>Jumlah</th>
+          <th>Metode</th><th>Tgl Upload</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php foreach (array_reverse($pending_list) as $t): ?>
+      <tr>
+        <?php if (isAdmin()): ?>
+        <td style="color:#1a1a1a;"><?= htmlspecialchars($t['nama']) ?></td>
+        <?php endif; ?>
+        <td><strong style="color:#0F6E56;"><?= $t['no_kamar'] ?></strong></td>
+        <td style="color:#475569;"><?= $t['bulan'] ?></td>
+        <td style="font-weight:700;color:var(--amber);">Rp <?= number_format($t['jumlah'], 0, ',', '.') ?></td>
+        <td class="text-sm text-muted"><?= $t['metode'] ?></td>
+        <td class="text-sm text-muted"><?= $t['tanggal'] ?></td>
+        <td><span class="badge badge-pending">Pending</span></td>
+      </tr>
+      <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <div style="padding:.85rem 1.4rem;background:#fef08a;font-size:12px;color:#854d0e;border-top:1px solid #f59e0b;border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+    💡 Admin sedang memverifikasi bukti pembayaran. Proses validasi membutuhkan waktu 1×24 jam.
+  </div>
+</div>
+<?php endif; ?>
+
+<!-- ===== RIWAYAT LUNAS ===== -->
 <div class="card">
   <div class="card-header">
     <span class="card-title">✅ Riwayat Pembayaran Lunas</span>

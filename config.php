@@ -95,6 +95,29 @@ function uploadFotoKomplain($file) {
 }
 
 // ============================================================
+//  UPLOAD FOTO KTP → uploads/ktp/
+// ============================================================
+function uploadFotoKTP($file) {
+    $target_dir = "uploads/ktp/";
+    if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
+
+    $filename = time() . '_' . basename($file['name']);
+    $target_file = $target_dir . $filename;
+    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+    $check = getimagesize($file['tmp_name']);
+    if ($check === false) return false;
+
+    if (!in_array($imageFileType, ['jpg','jpeg','png','gif','webp'])) return false;
+    if ($file['size'] > 5000000) return false;
+
+    if (move_uploaded_file($file['tmp_name'], $target_file)) {
+        return 'ktp/' . $filename;
+    }
+    return false;
+}
+
+// ============================================================
 //  TRANSAKSI
 // ============================================================
 function bayarTransaksiWithBukti($id, $metode, $bukti) {
@@ -240,7 +263,7 @@ function hapusKomplain($id) {
 }
 
 // ============================================================
-//  PESAN
+//  FUNGSI PESAN
 // ============================================================
 function getPesanAll() {
     $db = getDB();
@@ -279,7 +302,7 @@ function updateStatusPesan($id, $status) {
 }
 
 // ============================================================
-//  BOOKING
+//  FUNGSI BOOKING
 // ============================================================
 function getBookingAll() {
     $db = getDB();
@@ -332,7 +355,7 @@ function hapusBooking($id) {
 }
 
 // ============================================================
-//  USER / AUTH
+//  USER / AUTH (dengan foto KTP)
 // ============================================================
 function loginUser($email, $password) {
     $db = getDB();
@@ -354,25 +377,35 @@ function loginUser($email, $password) {
     return $result->fetch_assoc() ?: null;
 }
 
-function updateUserProfile($id, $nama, $no_hp, $alamat, $pekerjaan) {
+function updateUserProfile($id, $nama, $no_hp, $alamat, $pekerjaan, $foto_ktp = null) {
     $db = getDB();
     if (!$db) {
         $_SESSION['user_nama']      = $nama;
         $_SESSION['user_hp']        = $no_hp;
         $_SESSION['user_alamat']    = $alamat;
         $_SESSION['user_pekerjaan'] = $pekerjaan;
+        if ($foto_ktp) $_SESSION['user_foto_ktp'] = $foto_ktp;
         return true;
     }
 
-    $stmt = $db->prepare(
-        "UPDATE tb_users SET nama=?, no_hp=?, alamat_asal=?, pekerjaan=? WHERE id=?"
-    );
-    $stmt->bind_param('ssssi', $nama, $no_hp, $alamat, $pekerjaan, $id);
+    if ($foto_ktp) {
+        $stmt = $db->prepare(
+            "UPDATE tb_users SET nama=?, no_hp=?, alamat_asal=?, pekerjaan=?, foto_ktp=? WHERE id=?"
+        );
+        $stmt->bind_param('sssssi', $nama, $no_hp, $alamat, $pekerjaan, $foto_ktp, $id);
+    } else {
+        $stmt = $db->prepare(
+            "UPDATE tb_users SET nama=?, no_hp=?, alamat_asal=?, pekerjaan=? WHERE id=?"
+        );
+        $stmt->bind_param('ssssi', $nama, $no_hp, $alamat, $pekerjaan, $id);
+    }
+
     if ($stmt->execute()) {
         $_SESSION['user_nama']      = $nama;
         $_SESSION['user_hp']        = $no_hp;
         $_SESSION['user_alamat']    = $alamat;
         $_SESSION['user_pekerjaan'] = $pekerjaan;
+        if ($foto_ktp) $_SESSION['user_foto_ktp'] = $foto_ktp;
         return true;
     }
     return false;
