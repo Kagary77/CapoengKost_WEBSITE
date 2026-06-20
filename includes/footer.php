@@ -32,7 +32,7 @@ function requireLogin(page) {
   openLoginModal(page);
 }
 
-// ===== MODAL: BOOKING TAMU =====
+// ===== MODAL: BOOKING KAMAR TAMU =====
 function openBookingModalTamu(nama, harga) {
   document.getElementById('booking_tamu_kamar_nama').value = nama;
   document.getElementById('booking_tamu_kamar_harga').value = harga;
@@ -44,7 +44,7 @@ function closeBookingModalTamu() {
   document.getElementById('bookingModalTamu').classList.remove('show');
 }
 
-// ===== MODAL: BOOKING KAMAR (Lama) =====
+// ===== MODAL: BOOKING KAMAR (LAMA) =====
 function openBookingModal(id, nama, harga) {
   document.getElementById('booking_kamar_id').value    = id;
   document.getElementById('booking_kamar_nama').value  = nama;

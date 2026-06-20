@@ -1,7 +1,6 @@
 <?php
 // ============================================================
 //  ACTION: Penghuni (Admin) — CRUD dengan validasi kamar unik
-//  Status kamar otomatis dikelola sistem
 // ============================================================
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tambah_penghuni') {
@@ -16,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
 
     if ($nama && $email && $no_kamar) {
         if ($db) {
-            // Cek apakah kamar sudah ditempati
             $stmt = $db->prepare("SELECT id FROM tb_users WHERE no_kamar = ?");
             $stmt->bind_param('s', $no_kamar);
             $stmt->execute();
@@ -26,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
                 redirect('admin.php?page=penghuni');
                 exit;
             }
-            // Cek apakah email sudah terdaftar
             $stmt2 = $db->prepare("SELECT id FROM tb_users WHERE email = ?");
             $stmt2->bind_param('s', $email);
             $stmt2->execute();
@@ -47,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
             $stmt->bind_param('sssssss', $nama, $email, $hashed, $no_kamar, $no_hp, $alamat, $pekerjaan);
             $stmt->execute();
 
-            // Update status kamar menjadi terisi
             $stmt2 = $db->prepare("UPDATE tb_kamar SET status = 'terisi' WHERE nama = ?");
             $stmt2->bind_param('s', $no_kamar);
             $stmt2->execute();
@@ -82,18 +78,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus
     $db = getDB();
     $id = (int)($_POST['id'] ?? 0);
     if ($id && $db) {
-        // Dapatkan no_kamar user sebelum dihapus
         $stmt = $db->prepare("SELECT no_kamar FROM tb_users WHERE id=? AND role='penghuni'");
         $stmt->bind_param('i', $id);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($row = $result->fetch_assoc()) {
             $no_kamar = $row['no_kamar'];
-            // Hapus user
             $stmt2 = $db->prepare("DELETE FROM tb_users WHERE id=? AND role='penghuni'");
             $stmt2->bind_param('i', $id);
             $stmt2->execute();
-            // Update status kamar menjadi tersedia
             $stmt3 = $db->prepare("UPDATE tb_kamar SET status = 'tersedia' WHERE nama = ?");
             $stmt3->bind_param('s', $no_kamar);
             $stmt3->execute();

@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     $nama      = sanitize($_POST['nama'] ?? '');
     $tipe      = sanitize($_POST['tipe'] ?? '');
     $harga     = (int)($_POST['harga'] ?? 0);
-    $status    = sanitize($_POST['status'] ?? 'tersedia'); // default, tapi sistem yang akan mengubah
+    $status    = sanitize($_POST['status'] ?? 'tersedia');
     $fasilitas = sanitize($_POST['fasilitas'] ?? '');
     $edit_id   = (int)($_POST['edit_id'] ?? 0);
 
@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
                 $stmt->bind_param('ssisi', $nama, $tipe, $harga, $fasilitas, $edit_id);
                 $stmt->execute();
             } else {
-                // Kamar baru selalu tersedia
                 $stmt = $db->prepare("INSERT INTO tb_kamar (nama, tipe, harga, status, fasilitas, foto) VALUES (?, ?, ?, 'tersedia', ?, '')");
                 $stmt->bind_param('ssiss', $nama, $tipe, $harga, $fasilitas);
                 $stmt->execute();
@@ -41,7 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus
     $db = getDB();
     $id = (int)($_POST['id'] ?? 0);
     if ($id && $db) {
-        // Cek apakah kamar sedang terisi oleh penghuni
         $stmt = $db->prepare("SELECT id FROM tb_users WHERE no_kamar = (SELECT nama FROM tb_kamar WHERE id = ?)");
         $stmt->bind_param('i', $id);
         $stmt->execute();

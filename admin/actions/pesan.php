@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
             $stmt->bind_param('si', $status, $id);
             $stmt->execute();
         } else {
-            // Mode demo
             foreach ($_SESSION['demo_pesan'] as &$p) {
                 if ($p['id'] == $id) { $p['status'] = $status; break; }
             }
@@ -37,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus
             $stmt->bind_param('i', $id);
             $stmt->execute();
         } else {
-            // Mode demo
             $_SESSION['demo_pesan'] = array_values(
                 array_filter($_SESSION['demo_pesan'] ?? [], fn($p) => $p['id'] != $id)
             );

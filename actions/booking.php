@@ -67,7 +67,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
             $stmt->bind_param('sssssss', $nama, $no_hp, $kamar_nama, $kamar_harga, $periode_formatted, $metode, $bukti);
             $stmt->execute();
         } else {
-            // Mode demo
             if (!isset($_SESSION['demo_booking'])) $_SESSION['demo_booking'] = [];
             $_SESSION['demo_booking'][] = [
                 'id'          => count($_SESSION['demo_booking']) + 1,

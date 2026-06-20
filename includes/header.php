@@ -248,6 +248,7 @@ unset($_SESSION['login_error']);
 
     <!-- ===== FOOTER SIDEBAR ===== -->
     <?php if ($loggedIn): ?>
+    <!-- Sudah login: tampilkan profil + logout -->
     <div class="sidebar-footer">
       <div class="user-card">
         <div class="user-avatar"><?= strtoupper(substr($_SESSION['user_nama'] ?? 'U', 0, 1)) ?></div>
@@ -262,7 +263,9 @@ unset($_SESSION['login_error']);
         <span>🚪</span> Keluar
       </a>
     </div>
+
     <?php else: ?>
+    <!-- Tamu: panel login compact di bawah sidebar -->
     <div class="sidebar-guest-footer">
       <p>Sudah punya akun?</p>
       <?php if ($login_err): ?>
@@ -285,6 +288,7 @@ unset($_SESSION['login_error']);
           Masuk →
         </button>
       </form>
+
     </div>
     <?php endif; ?>
   </aside>

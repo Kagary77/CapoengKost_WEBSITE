@@ -4,7 +4,6 @@
 //  Status kamar otomatis dikelola sistem
 // ============================================================
 
-// Ambil data penghuni
 $db = getDB();
 if ($db) {
     $result   = $db->query("SELECT * FROM tb_users WHERE role='penghuni' ORDER BY no_kamar ASC");
@@ -15,12 +14,10 @@ if ($db) {
 }
 
 $kamar_data = getKamarData();
-$kamar_names = array_column($kamar_data, 'nama');
 ?>
 
 <div class="admin-grid-2" style="align-items:start;">
 
-  <!-- Tabel Penghuni -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title" style="color:#1e293b;">👩 Data Penghuni (<?= count($penghuni) ?>)</span>
@@ -37,7 +34,6 @@ $kamar_names = array_column($kamar_data, 'nama');
             <th style="color:#475569;">Kontak</th>
             <th style="color:#475569;">Pekerjaan</th>
             <th style="color:#475569;">Status Kamar</th>
-            <th style="color:#475569;">KTP</th>
             <th style="color:#475569;">Aksi</th>
           </tr>
         </thead>
@@ -74,21 +70,12 @@ $kamar_names = array_column($kamar_data, 'nama');
             </span>
           </td>
           <td>
-            <?php if (!empty($p['foto_ktp'])): ?>
-              <a href="uploads/<?= $p['foto_ktp'] ?>" target="_blank" class="admin-btn admin-btn-outline admin-btn-sm" title="Lihat KTP">🪪</a>
-            <?php else: ?>
-              <span style="color:#94a3b8;font-size:10px;">-</span>
-            <?php endif; ?>
-          </td>
-          <td>
             <div style="display:flex;gap:4px;flex-wrap:wrap;">
-              <!-- Reset password -->
               <form method="post" style="display:inline;" onsubmit="return confirm('Reset password <?= htmlspecialchars($p['nama']) ?>?')">
                 <input type="hidden" name="action" value="reset_password">
                 <input type="hidden" name="id" value="<?= $p['id'] ?>">
                 <button type="submit" class="admin-btn admin-btn-warning admin-btn-sm" title="Reset Password">🔑</button>
               </form>
-              <!-- Hapus -->
               <form method="post" style="display:inline;" onsubmit="return confirm('Hapus data <?= htmlspecialchars($p['nama']) ?>?')">
                 <input type="hidden" name="action" value="hapus_penghuni">
                 <input type="hidden" name="id" value="<?= $p['id'] ?>">
@@ -104,7 +91,6 @@ $kamar_names = array_column($kamar_data, 'nama');
     <?php endif; ?>
   </div>
 
-  <!-- Form Tambah Penghuni -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title" style="color:#1e293b;">➕ Tambah Penghuni Baru</span>

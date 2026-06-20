@@ -36,7 +36,10 @@ $page_map = [
 
 // ------------------------------------------------------------
 //  PENTING: proses action (POST) setiap halaman dijalankan DI SINI,
-//  sebelum admin/header.php mencetak HTML.
+//  sebelum admin/header.php mencetak HTML. Action boleh melakukan
+//  redirect() dengan aman karena belum ada output sama sekali.
+//  Inilah perbaikan utama dari struktur sebelumnya yang menyebabkan
+//  error "headers already sent" saat melakukan aksi di admin panel.
 // ------------------------------------------------------------
 $action_file = "admin/actions/{$page}.php";
 if (file_exists($action_file)) {

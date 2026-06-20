@@ -77,10 +77,12 @@ $booked_success = isset($_GET['booked']);
 
       <?php if($k['status']==='tersedia'): ?>
         <?php if ($loggedIn && !empty($user_kamar) && $user_kamar !== '-'): ?>
+          <!-- User sudah punya kamar → tombol disabled -->
           <div style="background:var(--bg);color:var(--text-light);text-align:center;cursor:not-allowed;border:1px solid var(--border);border-radius:8px;padding:8px;font-size:13px;font-weight:600;">
             🔒 Kamu sudah punya kamar
           </div>
         <?php else: ?>
+          <!-- Tombol booking untuk tamu atau user belum punya kamar -->
           <button onclick="openBookingModalTamu('<?= htmlspecialchars($k['nama']) ?>', <?= $k['harga'] ?>)"
             class="btn btn-primary" style="width:100%;display:block;text-align:center;border-radius:8px;">
             📅 Booking Kamar

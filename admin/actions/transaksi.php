@@ -38,13 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
     $db        = getDB();
     $nama      = sanitize($_POST['nama'] ?? '');
     $no_kamar  = sanitize($_POST['no_kamar'] ?? '');
-    $bulan_raw = $_POST['bulan'] ?? ''; // format YYYY-MM dari input type="month"
+    $bulan_raw = $_POST['bulan'] ?? '';
     $jumlah    = (int)($_POST['jumlah'] ?? 0);
     $metode    = sanitize($_POST['metode'] ?? '-');
-    $status    = 'pending'; // SELALU PENDING
+    $status    = 'pending';
 
     if ($nama && $no_kamar && $bulan_raw && $jumlah) {
-        // Konversi YYYY-MM ke "NamaBulan Tahun" (contoh: 2026-08 → Agustus 2026)
         $bulan_timestamp = strtotime($bulan_raw . '-01');
         $bulan_en = date('F Y', $bulan_timestamp);
         $bulan_id = [

@@ -1,4 +1,8 @@
 <?php
+// ============================================================
+//  ACTION: Komplain (Admin) — Update Status & Hapus
+// ============================================================
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_status') {
     $id     = (int)($_POST['id'] ?? 0);
     $status = sanitize($_POST['status'] ?? '');

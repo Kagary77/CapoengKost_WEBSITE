@@ -215,7 +215,8 @@ $booked = isset($_GET['booked']);
   <?php endif; ?>
 </div>
 
-<?php if (empty($my_trans) && !$booked): ?>
+<?php if (empty($my_trans) && !$booked && (empty($user_kamar) || $user_kamar === '-')): ?>
+<!-- Pesan ini hanya tampil untuk user yang belum memiliki kamar -->
 <div class="card mt-3" style="background:var(--teal-xlight);border-color:#9FE1CB;">
   <div class="card-body" style="text-align:center;padding:2rem;">
     <div style="font-size:2rem;margin-bottom:.75rem;">🛏️</div>

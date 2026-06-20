@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css"> 
 <link rel="stylesheet" href="admin.css">
 </head>
 <body class="admin-body">
@@ -29,7 +29,7 @@ if ($db_pesan) {
     $pesan_baru = count(array_filter($_SESSION['demo_pesan'] ?? [], fn($p) => $p['status'] === 'baru'));
 }
 
-// Hitung booking menunggu
+// Hitung booking baru
 $db_booking = getDB();
 if ($db_booking) {
     $result = $db_booking->query("SELECT COUNT(*) as total FROM tb_booking WHERE status='menunggu'");
@@ -82,6 +82,7 @@ if ($db_booking) {
           <span class="admin-nav-badge admin-nav-badge-warn"><?= $belum_bayar ?></span>
           <?php endif; ?>
         </a>
+        <!-- ===== MENU PESAN ===== -->
         <a href="admin.php?page=pesan" class="admin-nav-item <?= $activePage==='pesan'?'active':'' ?>">
           <span class="ani">📩</span> Pesan
           <?php if($pesan_baru > 0): ?>
@@ -97,7 +98,7 @@ if ($db_booking) {
         </a>
       </div>
     </nav>
-
+    
     <div class="admin-sidebar-footer">
       <div class="admin-user-card">
         <div class="admin-user-avatar">
