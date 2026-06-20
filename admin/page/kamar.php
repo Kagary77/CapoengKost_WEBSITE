@@ -1,6 +1,7 @@
 <?php
 // ============================================================
 //  VIEW: Kelola Kamar (Admin)
+//  Status kamar dikelola otomatis oleh sistem, tidak bisa diubah manual
 // ============================================================
 
 $kamar_data = getKamarData();
@@ -61,15 +62,11 @@ $terisi   = count($kamar_data) - $tersedia;
           <td style="color:#0F6E56;font-weight:600;">Rp <?= number_format($k['harga'],0,',','.') ?></td>
           <td style="font-size:11px;color:#475569;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="<?= $k['fasilitas'] ?>"><?= $k['fasilitas'] ?></td>
           <td>
-            <form method="post" style="display:inline;">
-              <input type="hidden" name="action" value="update_status_kamar">
-              <input type="hidden" name="id" value="<?= $k['id'] ?>">
-              <select name="status" onchange="this.form.submit()"
-                style="padding:3px 6px;font-size:11px;border-radius:6px;background:#f1f5f9;border:1px solid #cbd5e1;color:#1e293b;cursor:pointer;">
-                <option value="tersedia" <?= $k['status']==='tersedia'?'selected':'' ?>>Tersedia</option>
-                <option value="terisi"   <?= $k['status']==='terisi'?'selected':'' ?>>Terisi</option>
-              </select>
-            </form>
+            <?php if ($k['status'] === 'terisi'): ?>
+              <span class="admin-badge admin-badge-terisi" style="background:#fee2e2;color:#991b1b;">Terisi</span>
+            <?php else: ?>
+              <span class="admin-badge admin-badge-tersedia" style="background:#dcfce7;color:#166534;">Tersedia</span>
+            <?php endif; ?>
           </td>
           <td>
             <div style="display:flex;gap:5px;">
@@ -104,7 +101,7 @@ $terisi   = count($kamar_data) - $tersedia;
         <div class="admin-form-row">
           <div class="admin-form-group">
             <label style="color:#1e293b;">Nama Kamar *</label>
-            <input type="text" name="nama" placeholder="Contoh: Kamar A5" value="<?= $edit_kamar['nama'] ?? '' ?>" required>
+            <input type="text" name="nama" placeholder="Contoh: A1" value="<?= $edit_kamar['nama'] ?? '' ?>" required>
           </div>
           <div class="admin-form-group">
             <label style="color:#1e293b;">Tipe Kamar *</label>
@@ -122,10 +119,16 @@ $terisi   = count($kamar_data) - $tersedia;
           </div>
           <div class="admin-form-group">
             <label style="color:#1e293b;">Status</label>
-            <select name="status">
-              <option value="tersedia" <?= ($edit_kamar['status'] ?? 'tersedia')==='tersedia'?'selected':'' ?>>Tersedia</option>
-              <option value="terisi"   <?= ($edit_kamar['status'] ?? '')==='terisi'?'selected':'' ?>>Terisi</option>
-            </select>
+            <div style="padding:8px 0;font-size:12px;color:#475569;">
+              <?php if (($edit_kamar['status'] ?? 'tersedia') === 'terisi'): ?>
+                <span class="admin-badge admin-badge-terisi" style="background:#fee2e2;color:#991b1b;">Terisi</span>
+                <span style="font-size:10px;color:#94a3b8;margin-left:8px;">(Otomatis dikelola sistem)</span>
+              <?php else: ?>
+                <span class="admin-badge admin-badge-tersedia" style="background:#dcfce7;color:#166534;">Tersedia</span>
+                <span style="font-size:10px;color:#94a3b8;margin-left:8px;">(Otomatis dikelola sistem)</span>
+              <?php endif; ?>
+              <input type="hidden" name="status" value="<?= $edit_kamar['status'] ?? 'tersedia' ?>">
+            </div>
           </div>
         </div>
 
@@ -138,6 +141,9 @@ $terisi   = count($kamar_data) - $tersedia;
         <button type="submit" class="admin-btn admin-btn-primary" style="width:100%;">
           <?= $edit_kamar ? '💾 Simpan Perubahan' : '➕ Tambah Kamar' ?>
         </button>
+        <div style="margin-top:.5rem;font-size:10px;color:#94a3b8;text-align:center;">
+          ⚡ Status kamar akan diatur otomatis saat penghuni ditambahkan atau dihapus.
+        </div>
       </form>
     </div>
   </div>

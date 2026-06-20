@@ -1,6 +1,7 @@
 <?php
 // ============================================================
 //  ACTION: Penghuni (Admin) — CRUD dengan validasi kamar unik
+//  Status kamar otomatis dikelola sistem
 // ============================================================
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tambah_penghuni') {
@@ -51,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
             $stmt2->bind_param('s', $no_kamar);
             $stmt2->execute();
         }
-        $_SESSION['toast_msg']  = 'Penghuni baru berhasil ditambahkan.';
+        $_SESSION['toast_msg']  = 'Penghuni baru berhasil ditambahkan. Status kamar otomatis menjadi Terisi.';
         $_SESSION['toast_type'] = 'success';
     } else {
         $_SESSION['toast_msg']  = 'Harap isi semua field yang wajib.';
@@ -98,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus
             $stmt3->execute();
         }
     }
-    $_SESSION['toast_msg']  = 'Data penghuni berhasil dihapus.';
+    $_SESSION['toast_msg']  = 'Data penghuni berhasil dihapus. Status kamar otomatis menjadi Tersedia.';
     $_SESSION['toast_type'] = 'success';
     redirect('admin.php?page=penghuni');
 }
