@@ -55,6 +55,7 @@ if ($db_booking) {
     </div>
 
     <nav class="admin-nav">
+      <!-- UTAMA -->
       <div class="admin-nav-section">
         <div class="admin-nav-label">Utama</div>
         <a href="admin.php?page=dashboard" class="admin-nav-item <?= $activePage==='dashboard'?'active':'' ?>">
@@ -62,6 +63,7 @@ if ($db_booking) {
         </a>
       </div>
 
+      <!-- KELOLA DATA -->
       <div class="admin-nav-section">
         <div class="admin-nav-label">Kelola Data</div>
         <a href="admin.php?page=kamar" class="admin-nav-item <?= $activePage==='kamar'?'active':'' ?>">
@@ -82,14 +84,12 @@ if ($db_booking) {
           <span class="admin-nav-badge admin-nav-badge-warn"><?= $belum_bayar ?></span>
           <?php endif; ?>
         </a>
-        <!-- ===== MENU PESAN ===== -->
         <a href="admin.php?page=pesan" class="admin-nav-item <?= $activePage==='pesan'?'active':'' ?>">
           <span class="ani">📩</span> Pesan
           <?php if($pesan_baru > 0): ?>
           <span class="admin-nav-badge" style="background:#dc2626;"><?= $pesan_baru ?></span>
           <?php endif; ?>
         </a>
-        <!-- ===== MENU BOOKING ===== -->
         <a href="admin.php?page=booking" class="admin-nav-item <?= $activePage==='booking'?'active':'' ?>">
           <span class="ani">📋</span> Booking
           <?php if($booking_baru > 0): ?>
@@ -98,7 +98,7 @@ if ($db_booking) {
         </a>
       </div>
     </nav>
-    
+
     <div class="admin-sidebar-footer">
       <div class="admin-user-card">
         <div class="admin-user-avatar">
