@@ -1,6 +1,6 @@
 /* ============================================================
    ADMIN.CSS — Kost Putri Capoeng
-   Versi Final — Konsisten, Proporsional, Responsif
+   Versi Final — Responsif & Konsisten
    ============================================================ */
 
 :root {
@@ -502,28 +502,35 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .admin-stats-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .admin-grid-2 {
-    grid-template-columns: 1fr;
-  }
-  .admin-main {
-    margin-left: 0;
-  }
-  .admin-sidebar {
-    transform: translateX(-100%);
-    transition: 0.3s;
-  }
-  .hamburger {
-    display: flex;
-  }
+  .admin-stats-grid { grid-template-columns: 1fr 1fr; }
+  .admin-grid-2 { grid-template-columns: 1fr; }
+  .admin-main { margin-left: 0; }
+  .admin-sidebar { transform: translateX(-100%); transition: 0.3s; }
+  .hamburger { display: flex; }
+  .admin-page-content { padding: 0.75rem; }
+  .admin-table-wrap { overflow-x: auto; }
+  .admin-table th, .admin-table td { padding: 4px 6px; font-size: 11px; }
+  .admin-table-transaksi th, .admin-table-transaksi td { padding: 4px 6px; font-size: 11px; }
+  .admin-card-header { padding: 0.65rem 0.75rem; }
+  .admin-card-body { padding: 0.75rem; }
+  .admin-stat-card { padding: 0.75rem; }
+  .admin-stat-val { font-size: 1rem; }
+  .admin-form-row { grid-template-columns: 1fr; }
+  .admin-btn { font-size: 12px; padding: 6px 12px; }
+  .admin-btn-sm { font-size: 9px; padding: 2px 6px; height: 22px; }
 }
+
 @media (max-width: 480px) {
-  .admin-stats-grid {
-    grid-template-columns: 1fr;
-  }
-  .admin-form-row {
-    grid-template-columns: 1fr;
-  }
+  .admin-stats-grid { grid-template-columns: 1fr; }
+  .admin-form-row { grid-template-columns: 1fr; }
+  .admin-table th, .admin-table td { font-size: 10px; padding: 3px 4px; }
+  .admin-table-transaksi th, .admin-table-transaksi td { font-size: 10px; padding: 3px 4px; }
+  .admin-topbar { padding: 8px 10px; }
+  .admin-topbar-title { font-size: 14px; }
+  .admin-brand { padding: 12px; }
+  .admin-brand-name { font-size: 14px; }
+  .admin-nav-item { padding: 8px 12px; font-size: 12px; }
+  .admin-user-card { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .admin-logout-btn { font-size: 12px; padding: 6px; }
+  .file-drop { padding: 0.75rem; }
 }

@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
             }
         }
 
-        // Simpan transaksi
+        // Simpan transaksi — status diubah menjadi 'pending' agar terlihat di admin
         $new_trans = [
             'id'       => count($_SESSION['demo_transaksi'] ?? []) + 1,
             'nama'     => $nama,
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
             'bulan'    => $bulan,
             'jumlah'   => $kamar_harga,
             'metode'   => $metode,
-            'status'   => 'menunggu_konfirmasi',
+            'status'   => 'pending',
             'tanggal'  => date('Y-m-d'),
             'no_hp'    => $no_hp,
             'bukti'    => null,

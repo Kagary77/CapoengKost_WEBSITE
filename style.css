@@ -1,6 +1,6 @@
 /* ============================================================
    STYLE.CSS — Kost Putri Capoeng
-   Versi Final — Konsisten, Proporsional, Responsif
+   Versi Final — Responsif & Konsisten
    ============================================================ */
 
 /* ===== RESET & BASE ===== */
@@ -1009,9 +1009,7 @@ tr:hover td { background: var(--teal-xlight); }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
-  .sidebar {
-    transform: translateX(-100%);
-  }
+  .sidebar { transform: translateX(-100%); }
   .sidebar.open { transform: translateX(0); }
   .main-content { margin-left: 0; }
   .hamburger { display: flex; }
@@ -1026,11 +1024,38 @@ tr:hover td { background: var(--teal-xlight); }
   .kamar-grid { grid-template-columns: 1fr 1fr; }
   .page-content { padding: 1rem; }
   .card-body { padding: 1rem; }
+  .beranda-hero { padding: 1.5rem; }
+  .beranda-hero h2 { font-size: 1.2rem; }
+  .hero-badge-item { font-size: 10px; padding: 2px 8px; }
 }
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
   .kamar-grid { grid-template-columns: 1fr; }
   .trans-summary { grid-template-columns: 1fr; }
+  .admin-stats-grid { grid-template-columns: 1fr; }
+  .admin-grid-2 { grid-template-columns: 1fr; }
+  .page-content { padding: 0.75rem; }
+  .card-header { padding: 0.65rem 0.75rem; }
+  .card-body { padding: 0.75rem; }
+  .table-wrap { overflow-x: auto; }
+  .table-wrap table { font-size: 12px; }
+  .topbar { padding: 0 0.75rem; height: 48px; }
+  .topbar-title { font-size: 14px; }
+  .modal-box { padding: 1.25rem; max-width: 320px; }
+  .file-drop { padding: 1rem; }
+  .file-drop-icon { font-size: 1.2rem; }
+  .btn-sm { padding: 4px 8px; font-size: 11px; }
+  .stat-card { padding: 0.75rem; }
+  .stat-val { font-size: 1.2rem; }
+  .beranda-hero { padding: 1rem; }
+  .beranda-hero h2 { font-size: 1.1rem; }
+  .hero-cta a { padding: 6px 14px; font-size: 12px; }
+  .ticket-no { font-size: 1rem; }
+  .profile-sidebar-card { padding: 1rem; }
+  .profile-avatar-big { width: 60px; height: 60px; font-size: 1.4rem; }
+  .profile-name { font-size: 14px; }
+  .komplain-layout { gap: 1rem; }
+  .step-num { width: 22px; height: 22px; font-size: 10px; }
 }
 
 /* ===== MISC ===== */
