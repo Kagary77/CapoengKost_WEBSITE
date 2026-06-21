@@ -1,9 +1,9 @@
 <?php
 // ============================================================
-//  ACTION: Transaksi — Booking & Pembayaran (Publik / Penghuni)
+//  ACTION: Transaksi — Booking & Kirim Tagihan (Publik / Penghuni)
 // ============================================================
 
-// Handle POST: Booking kamar baru
+// Handle POST: Booking kamar baru (tetap sama)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booking_kamar') {
     $nama        = sanitize($_POST['nama'] ?? '');
     $no_hp       = sanitize($_POST['no_hp'] ?? '');
@@ -12,7 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
     $metode      = sanitize($_POST['metode'] ?? '');
     $periode_raw = $_POST['periode'] ?? '';
 
-    // ── VALIDASI: User login sudah punya kamar? ──
     $isLoggedIn = isLoggedIn();
     $user_id    = $_SESSION['user_id'] ?? 0;
     $user_kamar = $_SESSION['user_kamar'] ?? null;
@@ -25,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
     }
 
     if ($nama && $no_hp && $kamar_nama && $metode && $periode_raw) {
-        // Cek apakah kamar masih tersedia
         $db = getDB();
         if ($db && $kamar_nama) {
             $stmt = $db->prepare("SELECT status FROM tb_kamar WHERE nama = ?");
@@ -54,30 +52,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
         preg_match('/([A-Z]\d+)/i', $kamar_nama, $match);
         $no_kamar = strtoupper($match[1] ?? substr($kamar_nama, -2));
 
-        // ── Jika user login, update no_kamar di tb_users ──
         if ($isLoggedIn && $user_id) {
             if ($db) {
-                // Update no_kamar user
                 $stmt = $db->prepare("UPDATE tb_users SET no_kamar = ? WHERE id = ?");
                 $stmt->bind_param('si', $no_kamar, $user_id);
                 $stmt->execute();
 
-                // Update status kamar menjadi terisi
                 $stmt2 = $db->prepare("UPDATE tb_kamar SET status = 'terisi' WHERE nama = ?");
                 $stmt2->bind_param('s', $kamar_nama);
                 $stmt2->execute();
 
-                // Update session
                 $_SESSION['user_kamar'] = $no_kamar;
             } else {
-                // Mode demo
                 $_SESSION['user_kamar'] = $no_kamar;
                 if (!isset($_SESSION['demo_kamar_override'])) $_SESSION['demo_kamar_override'] = [];
                 $_SESSION['demo_kamar_override'][$no_kamar] = 'terisi';
             }
         }
 
-        // Simpan transaksi — status diubah menjadi 'pending' agar terlihat di admin
+        // Simpan transaksi dengan status 'terkirim'
         $new_trans = [
             'id'       => count($_SESSION['demo_transaksi'] ?? []) + 1,
             'nama'     => $nama,
@@ -85,14 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
             'bulan'    => $bulan,
             'jumlah'   => $kamar_harga,
             'metode'   => $metode,
-            'status'   => 'pending',
-            'tanggal'  => date('Y-m-d'),
+            'status'   => 'terkirim',
+            'tanggal'  => null,
             'no_hp'    => $no_hp,
             'bukti'    => null,
         ];
         $_SESSION['demo_transaksi'][] = $new_trans;
 
-        $_SESSION['toast_msg']  = "Booking $kamar_nama berhasil! Menunggu konfirmasi pengelola.";
+        $_SESSION['toast_msg']  = "Booking $kamar_nama berhasil! Tagihan akan dikirim oleh admin.";
         $_SESSION['toast_type'] = 'success';
         redirect('index.php?page=transaksi&booked=1');
     } else {
@@ -102,46 +95,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'booki
     }
 }
 
-// Handle POST: Konfirmasi bayar dengan upload bukti
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'bayar') {
+// ===== PROSES KIRIM TAGIHAN KE ADMIN (penghuni mengisi) =====
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'kirim_tagihan') {
     $id     = (int)($_POST['id'] ?? 0);
     $metode = sanitize($_POST['metode'] ?? '');
-
+    
     if (!isset($_FILES['bukti']) || $_FILES['bukti']['error'] !== UPLOAD_ERR_OK) {
         $_SESSION['toast_msg']  = 'Harap upload bukti pembayaran.';
         $_SESSION['toast_type'] = 'error';
         redirect('index.php?page=transaksi');
+        exit;
     }
     $bukti = uploadBukti($_FILES['bukti']);
     if (!$bukti) {
         $_SESSION['toast_msg']  = 'Gagal upload bukti. Pastikan file gambar (max 5MB).';
         $_SESSION['toast_type'] = 'error';
         redirect('index.php?page=transaksi');
+        exit;
     }
-
+    
+    // Cek apakah transaksi milik user dan statusnya 'terkirim'
     $all_trans = getTransaksiAll();
     $target = null;
     foreach ($all_trans as $t) {
         if ($t['id'] == $id) { $target = $t; break; }
     }
-    if (!$target) {
-        $_SESSION['toast_msg']  = 'Transaksi tidak ditemukan.';
+    if (!$target || $target['status'] !== 'terkirim') {
+        $_SESSION['toast_msg']  = 'Tagihan tidak valid atau sudah diproses.';
         $_SESSION['toast_type'] = 'error';
         redirect('index.php?page=transaksi');
+        exit;
     }
-
-    $boleh = isAdmin() || (strtoupper(trim($target['no_kamar'])) === strtoupper(trim($_SESSION['user_kamar'] ?? '')));
-    if (!$boleh) {
+    // Pastikan milik user
+    $user_kamar = strtoupper(trim($_SESSION['user_kamar'] ?? ''));
+    if (strtoupper(trim($target['no_kamar'])) !== $user_kamar) {
         $_SESSION['toast_msg']  = 'Akses ditolak.';
         $_SESSION['toast_type'] = 'error';
         redirect('index.php?page=transaksi');
+        exit;
     }
-
-    if (bayarTransaksiWithBukti($id, $metode, $bukti)) {
-        $_SESSION['toast_msg']  = 'Bukti pembayaran terkirim! Menunggu verifikasi admin.';
+    
+    if (kirimTagihanKeAdmin($id, $metode, $bukti)) {
+        $_SESSION['toast_msg']  = 'Tagihan berhasil dikirim ke admin untuk validasi.';
         $_SESSION['toast_type'] = 'success';
     } else {
-        $_SESSION['toast_msg']  = 'Gagal mengirim bukti.';
+        $_SESSION['toast_msg']  = 'Gagal mengirim tagihan.';
         $_SESSION['toast_type'] = 'error';
     }
     redirect('index.php?page=transaksi');

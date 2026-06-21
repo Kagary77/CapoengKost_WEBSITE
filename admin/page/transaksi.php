@@ -1,55 +1,57 @@
 <?php
 $transaksi_all = getTransaksiAll();
-$filter_status = $_GET['status'] ?? 'semua';
 
+$terkirim  = array_filter($transaksi_all, fn($t) => $t['status'] === 'terkirim');
+$pending   = array_filter($transaksi_all, fn($t) => $t['status'] === 'pending');
+$lunas     = array_filter($transaksi_all, fn($t) => $t['status'] === 'lunas');
+$gagal     = array_filter($transaksi_all, fn($t) => $t['status'] === 'gagal');
+
+$total_terkirim = count($terkirim);
+$total_pending  = count($pending);
+$total_lunas    = count($lunas);
+$total_gagal    = count($gagal);
+$total_lunas_nominal = array_sum(array_column(array_values($lunas), 'jumlah'));
+
+$filter_status = $_GET['status'] ?? 'semua';
 $filtered = $transaksi_all;
 if ($filter_status !== 'semua') {
     $filtered = array_filter($transaksi_all, fn($t) => $t['status'] === $filter_status);
 }
 
-$lunas       = array_filter($transaksi_all, fn($t) => $t['status']==='lunas');
-$belum       = array_filter($transaksi_all, fn($t) => $t['status']==='belum_bayar');
-$pending     = array_filter($transaksi_all, fn($t) => $t['status']==='pending');
-$total_lunas = array_sum(array_column(array_values($lunas), 'jumlah'));
-$total_belum = array_sum(array_column(array_values($belum), 'jumlah'));
-
 $kamar_data = getKamarData();
 
-$sdg = [
-    'lunas' => 'admin-badge-lunas',
-    'belum_bayar' => 'admin-badge-belum',
-    'pending' => 'admin-badge-pending'
-];
-$slb = [
-    'lunas' => 'Lunas',
-    'belum_bayar' => 'Belum Bayar',
-    'pending' => 'Pending'
+$badge_map = [
+    'terkirim' => ['class' => 'admin-badge-terkirim', 'label' => 'Terkirim'],
+    'pending'  => ['class' => 'admin-badge-pending',  'label' => 'Pending'],
+    'lunas'    => ['class' => 'admin-badge-lunas',    'label' => 'Lunas'],
+    'gagal'    => ['class' => 'admin-badge-gagal',    'label' => 'Gagal'],
 ];
 ?>
 
-<div class="admin-stats-grid" style="grid-template-columns:repeat(4,1fr);">
-  <div class="admin-stat-card accent">
-    <div class="admin-stat-icon">💰</div>
-    <div class="admin-stat-val" style="color:#0F6E56;">Rp <?= number_format($total_lunas/1000,0,',','.') ?>K</div>
-    <div class="admin-stat-lbl">Total Lunas</div>
-    <div class="admin-stat-sub"><?= count($lunas) ?> transaksi</div>
+<div class="admin-stats-grid" style="grid-template-columns:repeat(5,1fr);">
+  <div class="admin-stat-card">
+    <div class="admin-stat-icon">📨</div>
+    <div class="admin-stat-val" style="color:#2563eb;"><?= $total_terkirim ?></div>
+    <div class="admin-stat-lbl">Terkirim</div>
+    <div class="admin-stat-sub">Menunggu penghuni</div>
   </div>
   <div class="admin-stat-card">
     <div class="admin-stat-icon">⏳</div>
-    <div class="admin-stat-val"><?= count($belum) ?></div>
-    <div class="admin-stat-lbl">Belum Bayar</div>
-    <div class="admin-stat-sub">Rp <?= number_format($total_belum/1000,0,',','.') ?>K tertunggak</div>
+    <div class="admin-stat-val" style="color:#d97706;"><?= $total_pending ?></div>
+    <div class="admin-stat-lbl">Pending</div>
+    <div class="admin-stat-sub">Menunggu validasi</div>
   </div>
   <div class="admin-stat-card">
-    <div class="admin-stat-icon">⏳</div>
-    <div class="admin-stat-val"><?= count($pending) ?></div>
-    <div class="admin-stat-lbl">Menunggu Validasi</div>
-    <div class="admin-stat-sub">Bukti perlu dicek</div>
+    <div class="admin-stat-icon">✅</div>
+    <div class="admin-stat-val" style="color:#0F6E56;"><?= $total_lunas ?></div>
+    <div class="admin-stat-lbl">Lunas</div>
+    <div class="admin-stat-sub">Rp <?= number_format($total_lunas_nominal/1000,0,',','.') ?>K</div>
   </div>
   <div class="admin-stat-card">
-    <div class="admin-stat-icon">📊</div>
-    <div class="admin-stat-val"><?= count($transaksi_all) ?></div>
-    <div class="admin-stat-lbl">Total Transaksi</div>
+    <div class="admin-stat-icon">❌</div>
+    <div class="admin-stat-val" style="color:#dc2626;"><?= $total_gagal ?></div>
+    <div class="admin-stat-lbl">Gagal</div>
+    <div class="admin-stat-sub">Akan dikirim ulang</div>
   </div>
 </div>
 
@@ -59,7 +61,7 @@ $slb = [
     <div class="admin-card-header">
       <span class="admin-card-title">💳 Daftar Transaksi</span>
       <div style="display:flex;gap:5px;flex-wrap:wrap;">
-        <?php foreach(['semua'=>'Semua','lunas'=>'Lunas','belum_bayar'=>'Belum','pending'=>'Pending'] as $v=>$l): ?>
+        <?php foreach(['semua'=>'Semua','terkirim'=>'Terkirim','pending'=>'Pending','lunas'=>'Lunas','gagal'=>'Gagal'] as $v=>$l): ?>
         <a href="admin.php?page=transaksi&status=<?= $v ?>"
            class="admin-btn admin-btn-sm <?= $filter_status===$v?'admin-btn-primary':'admin-btn-outline' ?>"><?= $l ?></a>
         <?php endforeach; ?>
@@ -92,7 +94,7 @@ $slb = [
             Rp <?= number_format($t['jumlah'],0,',','.') ?>
           </td>
           <td style="font-size:11px;color:#475569;"><?= $t['metode'] ?></td>
-          <td><span class="admin-badge <?= $sdg[$t['status']] ?? '' ?>"><?= $slb[$t['status']] ?? $t['status'] ?></span></td>
+          <td><span class="admin-badge <?= $badge_map[$t['status']]['class'] ?? '' ?>"><?= $badge_map[$t['status']]['label'] ?? $t['status'] ?></span></td>
           <td>
             <?php if ($t['bukti']): ?>
               <a href="uploads/pembayaran/<?= $t['bukti'] ?>" target="_blank" class="admin-btn admin-btn-outline admin-btn-sm" title="Lihat Bukti">📷</a>
@@ -107,7 +109,7 @@ $slb = [
                   <input type="hidden" name="action" value="validasi_transaksi">
                   <input type="hidden" name="id" value="<?= $t['id'] ?>">
                   <button type="submit" name="status" value="lunas" class="admin-btn admin-btn-success admin-btn-sm" title="Setujui">✔</button>
-                  <button type="submit" name="status" value="belum_bayar" class="admin-btn admin-btn-danger admin-btn-sm" title="Tolak">✖</button>
+                  <button type="submit" name="status" value="gagal" class="admin-btn admin-btn-danger admin-btn-sm" title="Tolak">✖</button>
                 </form>
               <?php endif; ?>
               <form method="post" style="display:inline;" onsubmit="return confirm('Hapus transaksi ini?')">
@@ -173,9 +175,9 @@ $slb = [
             </select>
           </div>
         </div>
-        <button type="submit" class="admin-btn admin-btn-primary" style="width:100%;">➕ Buat Tagihan</button>
+        <button type="submit" class="admin-btn admin-btn-primary" style="width:100%;">📨 Kirim Tagihan</button>
         <div style="margin-top:.5rem;font-size:10px;color:#94a3b8;text-align:center;">
-          ⚡ Status akan otomatis <strong>Pending</strong> dan menunggu validasi admin.
+          ⚡ Status otomatis <strong>Terkirim</strong> ke penghuni.
         </div>
       </form>
 

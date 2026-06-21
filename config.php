@@ -157,13 +157,45 @@ function hapusFotoKamar($filename) {
 }
 
 // ============================================================
-//  TRANSAKSI
+//  TRANSAKSI — ALUR BARU (terkirim → pending → lunas/gagal)
 // ============================================================
-function bayarTransaksiWithBukti($id, $metode, $bukti) {
+
+/**
+ * Buat tagihan baru oleh admin (status awal = 'terkirim')
+ */
+function buatTagihan($nama, $no_kamar, $bulan, $jumlah, $metode = '-') {
+    $db = getDB();
+    if (!$db) {
+        if (!isset($_SESSION['demo_transaksi'])) $_SESSION['demo_transaksi'] = [];
+        $_SESSION['demo_transaksi'][] = [
+            'id'       => count($_SESSION['demo_transaksi']) + 1,
+            'nama'     => $nama,
+            'no_kamar' => $no_kamar,
+            'bulan'    => $bulan,
+            'jumlah'   => $jumlah,
+            'metode'   => $metode,
+            'status'   => 'terkirim',
+            'tanggal'  => null,
+            'bukti'    => null,
+        ];
+        return true;
+    }
+    $stmt = $db->prepare(
+        "INSERT INTO tb_transaksi (nama, no_kamar, bulan, jumlah, metode, status) 
+         VALUES (?, ?, ?, ?, ?, 'terkirim')"
+    );
+    $stmt->bind_param('sssis', $nama, $no_kamar, $bulan, $jumlah, $metode);
+    return $stmt->execute();
+}
+
+/**
+ * Penghuni mengisi tagihan (upload bukti) → ubah status dari 'terkirim' ke 'pending'
+ */
+function kirimTagihanKeAdmin($id, $metode, $bukti) {
     $db = getDB();
     if (!$db) {
         foreach ($_SESSION['demo_transaksi'] as &$t) {
-            if ($t['id'] == $id) {
+            if ($t['id'] == $id && $t['status'] === 'terkirim') {
                 $t['status'] = 'pending';
                 $t['metode'] = $metode;
                 $t['bukti']  = $bukti;
@@ -173,28 +205,46 @@ function bayarTransaksiWithBukti($id, $metode, $bukti) {
         }
         return true;
     }
-    $stmt = $db->prepare("UPDATE tb_transaksi SET status='pending', metode=?, bukti=?, tanggal=? WHERE id=?");
+    $stmt = $db->prepare(
+        "UPDATE tb_transaksi SET status='pending', metode=?, bukti=?, tanggal=? WHERE id=? AND status='terkirim'"
+    );
     $stmt->bind_param('sssi', $metode, $bukti, date('Y-m-d'), $id);
     return $stmt->execute();
 }
 
+/**
+ * Admin validasi: lunas atau gagal
+ * Jika gagal → otomatis kembali ke 'terkirim'
+ */
 function validasiTransaksi($id, $status_baru) {
+    if (!in_array($status_baru, ['lunas', 'gagal'])) return false;
+    
     $db = getDB();
     if (!$db) {
         foreach ($_SESSION['demo_transaksi'] as &$t) {
-            if ($t['id'] == $id) {
-                $t['status'] = $status_baru;
+            if ($t['id'] == $id && $t['status'] === 'pending') {
                 if ($status_baru === 'lunas') {
+                    $t['status'] = 'lunas';
                     $t['tanggal'] = date('Y-m-d');
+                } else { // gagal → kembali ke terkirim
+                    $t['status'] = 'terkirim';
+                    $t['tanggal'] = null;
+                    $t['metode'] = '-';
+                    $t['bukti'] = null;
                 }
                 break;
             }
         }
         return true;
     }
-    $tgl = ($status_baru === 'lunas') ? date('Y-m-d') : null;
-    $stmt = $db->prepare("UPDATE tb_transaksi SET status=?, tanggal=? WHERE id=?");
-    $stmt->bind_param('ssi', $status_baru, $tgl, $id);
+    
+    if ($status_baru === 'lunas') {
+        $stmt = $db->prepare("UPDATE tb_transaksi SET status='lunas', tanggal=? WHERE id=? AND status='pending'");
+        $stmt->bind_param('si', date('Y-m-d'), $id);
+    } else { // gagal
+        $stmt = $db->prepare("UPDATE tb_transaksi SET status='terkirim', tanggal=NULL, metode='-', bukti=NULL WHERE id=? AND status='pending'");
+        $stmt->bind_param('i', $id);
+    }
     return $stmt->execute();
 }
 
@@ -408,40 +458,30 @@ function loginUser($email, $password) {
         return null;
     }
 
-    // Ambil user berdasarkan email saja
     $stmt = $db->prepare("SELECT * FROM tb_users WHERE email = ? LIMIT 1");
     $stmt->bind_param('s', $email);
     $stmt->execute();
     $result = $stmt->get_result();
     $user = $result->fetch_assoc();
 
-    if (!$user) {
-        return null; // User tidak ditemukan
-    }
+    if (!$user) return null;
 
     $stored_password = $user['password'];
 
-    // Cek apakah masih menggunakan MD5 (panjang 32 karakter)
     if (strlen($stored_password) === 32) {
-        // Verifikasi dengan MD5
         if (md5($password) === $stored_password) {
-            // Upgrade ke password_hash secara otomatis
             $new_hash = password_hash($password, PASSWORD_DEFAULT);
             $update_stmt = $db->prepare("UPDATE tb_users SET password = ? WHERE id = ?");
             $update_stmt->bind_param('si', $new_hash, $user['id']);
             $update_stmt->execute();
-
-            // Return user (tetap login)
             return $user;
         }
         return null;
     }
 
-    // Verifikasi dengan password_verify (bcrypt)
     if (password_verify($password, $stored_password)) {
         return $user;
     }
-
     return null;
 }
 
@@ -481,7 +521,6 @@ function updateUserProfile($id, $nama, $no_hp, $alamat, $pekerjaan, $foto_ktp = 
 
 function updateUserPassword($id, $new_password) {
     $db = getDB();
-    // Gunakan password_hash, bukan md5
     $hashed = password_hash($new_password, PASSWORD_DEFAULT);
 
     if (!$db) {

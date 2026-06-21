@@ -617,6 +617,10 @@ body {
 .badge-penghuni { background: #ede9fe; color: #5b21b6; }
 .badge-tamu { background: #f3f4f6; color: #6b7280; }
 
+/* --- BADGE ALUR TRANSAKSI BARU --- */
+.badge-terkirim { background: #dbeafe; color: #1e40af; }
+.badge-gagal    { background: #fee2e2; color: #991b1b; }
+
 .tag {
   background: var(--bg);
   border: 1px solid var(--border);

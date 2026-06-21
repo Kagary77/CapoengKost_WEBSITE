@@ -17,7 +17,9 @@ $kamar_all     = getKamarData();
 $komplain_all  = getKomplainAll();
 $transaksi_all = getTransaksiAll();
 $komplain_baru = count(array_filter($komplain_all, fn($k) => $k['status'] === 'baru'));
-$belum_bayar   = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'belum_bayar'));
+
+// ===== UPDATE: badge transaksi menghitung status PENDING (menunggu validasi admin) =====
+$pending_transaksi = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'pending'));
 
 // Hitung pesan baru
 $db_pesan = getDB();
@@ -80,8 +82,8 @@ if ($db_booking) {
         </a>
         <a href="admin.php?page=transaksi" class="admin-nav-item <?= $activePage==='transaksi'?'active':'' ?>">
           <span class="ani">💳</span> Transaksi
-          <?php if($belum_bayar > 0): ?>
-          <span class="admin-nav-badge admin-nav-badge-warn"><?= $belum_bayar ?></span>
+          <?php if($pending_transaksi > 0): ?>
+          <span class="admin-nav-badge admin-nav-badge-warn"><?= $pending_transaksi ?></span>
           <?php endif; ?>
         </a>
         <a href="admin.php?page=pesan" class="admin-nav-item <?= $activePage==='pesan'?'active':'' ?>">
