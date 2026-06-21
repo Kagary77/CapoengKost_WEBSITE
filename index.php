@@ -4,7 +4,7 @@
 //  Versi Tamu + Penghuni + Admin
 // ============================================================
 
-require_once 'config.php';
+require_once 'config.php'
 
 // ------------------------------------------------------------
 //  PROSES BOOKING TAMU (POST) — ditangani di sini
