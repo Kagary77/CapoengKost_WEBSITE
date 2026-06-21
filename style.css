@@ -1,6 +1,6 @@
 /* ============================================================
    STYLE.CSS — Kost Putri Capoeng
-   Versi Final — Responsif & Konsisten
+   Versi Final — Konsisten, Proporsional, Responsif
    ============================================================ */
 
 /* ===== RESET & BASE ===== */
@@ -79,7 +79,6 @@ body {
   text-align: center;
   font-size: 1.3rem;
   font-weight: 700;
-  margin-bottom: 4px;
   color: #1a1a1a;
 }
 
@@ -220,7 +219,7 @@ body {
   margin-bottom: 1.5rem;
 }
 .login-required-banner .lrb-icon { font-size: 2.5rem; margin-bottom: .75rem; }
-.login-required-banner h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+.login-required-banner h3 { font-size: 1.1rem; font-weight: 700; }
 .login-required-banner p {
   font-size: 12px;
   color: rgba(255,255,255,.75);
@@ -284,7 +283,6 @@ body {
 .sidebar-name {
   font-weight: 700;
   font-size: 13px;
-  line-height: 1.2;
   color: #1a1a1a;
 }
 .sidebar-sub {
@@ -493,7 +491,6 @@ body {
 .card-title {
   font-weight: 700;
   font-size: 14px;
-  margin: 0;
   color: #1a1a1a;
 }
 .card-body {
@@ -517,11 +514,10 @@ body {
   flex-direction: column;
   gap: 4px;
 }
-.stat-icon { font-size: 1.4rem; margin-bottom: 4px; }
+.stat-icon { font-size: 1.4rem; }
 .stat-val {
   font-size: 1.4rem;
   font-weight: 700;
-  line-height: 1.2;
   color: #1a1a1a;
 }
 .stat-lbl {
@@ -553,12 +549,14 @@ body {
   transform: translateY(-2px);
 }
 .kamar-thumb {
-  height: 120px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2rem;
   position: relative;
+  background-size: cover !important;
+  background-position: center !important;
 }
 .kamar-thumb-std { background: linear-gradient(135deg, #E1F5EE, #9FE1CB); }
 .kamar-thumb-prm { background: linear-gradient(135deg, #FAEEDA, #FAC775); }
@@ -566,7 +564,6 @@ body {
 .kamar-name {
   font-weight: 700;
   font-size: 14px;
-  margin-bottom: 2px;
   color: #1a1a1a;
 }
 .kamar-harga {
@@ -708,7 +705,6 @@ tr:hover td { background: var(--teal-xlight); }
 .beranda-hero h2 {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 6px;
 }
 .beranda-hero p {
   color: rgba(255,255,255,0.7);
@@ -785,7 +781,6 @@ tr:hover td { background: var(--teal-xlight); }
 .profile-name {
   font-weight: 700;
   font-size: 16px;
-  margin-bottom: 4px;
   color: #1a1a1a;
 }
 .profile-role {
@@ -940,7 +935,6 @@ tr:hover td { background: var(--teal-xlight); }
 .modal-title {
   font-size: 1.1rem;
   font-weight: 700;
-  margin-bottom: 6px;
   color: #1a1a1a;
 }
 .modal-desc {
@@ -1075,7 +1069,6 @@ tr:hover td { background: var(--teal-xlight); }
   font-size: 14px;
   font-weight: 600;
   color: #1a1a1a;
-  margin-bottom: 4px;
 }
 .empty-state p { font-size: 12px; }
 

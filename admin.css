@@ -1,6 +1,6 @@
 /* ============================================================
    ADMIN.CSS — Kost Putri Capoeng
-   Versi Final — Responsif & Konsisten
+   Versi Final — Konsisten, Proporsional, Responsif
    ============================================================ */
 
 :root {
@@ -220,7 +220,6 @@ body {
   font-weight: 700;
   font-size: 14px;
   color: #1a1a1a;
-  margin: 0;
 }
 .admin-card-body {
   padding: 1.25rem;
@@ -292,43 +291,7 @@ body {
   background: var(--teal-light);
 }
 
-/* ===== FILE UPLOAD UNTUK FOTO KAMAR ===== */
-.file-drop {
-  border: 2px dashed var(--border);
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.15s;
-  position: relative;
-  background: var(--bg);
-}
-.file-drop:hover {
-  border-color: var(--teal);
-  background: var(--teal-light);
-}
-.file-drop input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-  width: 100%;
-  height: 100%;
-}
-.file-drop-icon {
-  font-size: 1.4rem;
-  display: block;
-  margin-bottom: 4px;
-}
-.file-drop-text {
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.file-drop-text strong {
-  color: var(--teal);
-}
-
-/* ===== TABEL TRANSAKSI KHUSUS ===== */
+/* ===== TABEL TRANSAKSI / BOOKING KHUSUS ===== */
 .admin-table-transaksi th,
 .admin-table-transaksi td {
   padding: 6px 8px;
@@ -466,6 +429,8 @@ body {
 .admin-badge-premium { background: #fef3c7; color: #92400e; }
 .admin-badge-standard { background: var(--teal-light); color: var(--teal-dark); }
 .admin-badge-penghuni { background: #ede9fe; color: #5b21b6; }
+.admin-badge-terisi { background: #fee2e2; color: #991b1b; }
+.admin-badge-tersedia { background: #dcfce7; color: #166534; }
 
 /* ===== EMPTY STATE ===== */
 .admin-empty {
@@ -478,6 +443,42 @@ body {
   display: block;
   font-size: 24px;
   margin-bottom: 6px;
+}
+
+/* ===== FILE UPLOAD ===== */
+.file-drop {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.15s;
+  position: relative;
+  background: var(--bg);
+}
+.file-drop:hover {
+  border-color: var(--teal);
+  background: var(--teal-light);
+}
+.file-drop input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.file-drop-icon {
+  font-size: 1.4rem;
+  display: block;
+  margin-bottom: 4px;
+}
+.file-drop-text {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.file-drop-text strong {
+  color: var(--teal);
 }
 
 /* ===== MISC ===== */
