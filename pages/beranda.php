@@ -3,9 +3,19 @@ $kamar_data    = getKamarData();
 $tersedia      = count(array_filter($kamar_data, fn($k) => $k['status'] === 'tersedia'));
 $komplain_all  = getKomplainAll();
 $komplain_baru = count(array_filter($komplain_all, fn($k) => $k['status'] === 'baru'));
+
+// ===== PERBAIKAN: Statistik transaksi dengan status baru =====
 $transaksi_all = getTransaksiAll();
-$lunas  = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'lunas'));
-$belum  = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'belum_bayar'));
+
+// Hitung transaksi berdasarkan status baru
+$terkirim_count = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'terkirim'));
+$pending_count  = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'pending'));
+$lunas_count    = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'lunas'));
+$gagal_count    = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'gagal'));
+
+// Total tagihan yang belum lunas (terkirim + pending + gagal)
+$belum_lunas_total = $terkirim_count + $pending_count + $gagal_count;
+
 $nama_user = $_SESSION['user_nama'] ?? null;
 $loggedIn  = isLoggedIn();
 ?>
@@ -54,9 +64,9 @@ $loggedIn  = isLoggedIn();
   </div>
   <div class="stat-card">
     <div class="stat-icon">💳</div>
-    <div class="stat-val"><?= $lunas ?></div>
+    <div class="stat-val"><?= $lunas_count ?></div>
     <div class="stat-lbl">Transaksi Lunas</div>
-    <div class="stat-sub"><?= $belum ?> belum bayar</div>
+    <div class="stat-sub"><?= $belum_lunas_total ?> belum lunas</div>
   </div>
   <?php else: ?>
   <div class="stat-card">
