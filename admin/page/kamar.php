@@ -1,11 +1,29 @@
 <?php
-// ============================================================
-//  VIEW: Kelola Kamar (Admin)
-//  Status kamar dikelola otomatis oleh sistem, tidak bisa diubah manual
-// ============================================================
+/**
+ * ================================================================
+ *  VIEW: KELOLA KAMAR (ADMIN)
+ *  - Menampilkan daftar kamar dengan filter (Semua, Tersedia, Terisi).
+ *  - Menampilkan statistik singkat (Total, Tersedia, Terisi).
+ *  - Form untuk menambah atau mengedit data kamar.
+ *  - Mendukung upload foto kamar.
+ *  - Status kamar dikelola otomatis oleh sistem (tidak bisa diubah manual).
+ * ================================================================
+ */
 
+// Ambil semua data kamar dari database/session
 $kamar_data = getKamarData();
+
+// ---- FILTER BERDASARKAN PARAMETER URL ----
 $filter     = $_GET['filter'] ?? 'semua';
+$filtered   = $kamar_data;
+if ($filter === 'tersedia') $filtered = array_filter($kamar_data, fn($k) => $k['status']==='tersedia');
+elseif ($filter === 'terisi') $filtered = array_filter($kamar_data, fn($k) => $k['status']==='terisi');
+
+// ---- STATISTIK UNTUK CARD ----
+$tersedia = count(array_filter($kamar_data, fn($k) => $k['status']==='tersedia'));
+$terisi   = count($kamar_data) - $tersedia;
+
+// ---- CEK APAKAH ADA PARAMETER EDIT ----
 $edit_id    = (int)($_GET['edit'] ?? 0);
 $edit_kamar = null;
 if ($edit_id) {
@@ -13,25 +31,19 @@ if ($edit_id) {
         if ($k['id'] == $edit_id) { $edit_kamar = $k; break; }
     }
 }
-
-$filtered = $kamar_data;
-if ($filter === 'tersedia') $filtered = array_filter($kamar_data, fn($k) => $k['status']==='tersedia');
-elseif ($filter === 'terisi') $filtered = array_filter($kamar_data, fn($k) => $k['status']==='terisi');
-
-$tersedia = count(array_filter($kamar_data, fn($k) => $k['status']==='tersedia'));
-$terisi   = count($kamar_data) - $tersedia;
 ?>
 
-<!-- Stats mini -->
+<!-- ===== STATISTIK CARD ===== -->
 <div class="admin-stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.25rem;">
   <div class="admin-stat-card"><div class="admin-stat-icon">🏠</div><div class="admin-stat-val" style="color:#1e293b;"><?= count($kamar_data) ?></div><div class="admin-stat-lbl" style="color:#475569;">Total Kamar</div></div>
   <div class="admin-stat-card"><div class="admin-stat-icon">✅</div><div class="admin-stat-val" style="color:#0F6E56;"><?= $tersedia ?></div><div class="admin-stat-lbl" style="color:#475569;">Tersedia</div></div>
   <div class="admin-stat-card"><div class="admin-stat-icon">🔴</div><div class="admin-stat-val" style="color:#b91c1c;"><?= $terisi ?></div><div class="admin-stat-lbl" style="color:#475569;">Terisi</div></div>
 </div>
 
+<!-- ===== GRID 2 KOLOM: TABEL + FORM ===== -->
 <div class="admin-grid-2" style="align-items:start;">
 
-  <!-- Tabel Kamar -->
+  <!-- ===== KOLOM KIRI: TABEL DAFTAR KAMAR ===== -->
   <div class="admin-card" style="grid-column: span 1;">
     <div class="admin-card-header">
       <span class="admin-card-title" style="color:#1e293b;">🏠 Daftar Kamar</span>
@@ -79,6 +91,7 @@ $terisi   = count($kamar_data) - $tersedia;
           <td>
             <div style="display:flex;gap:5px;">
               <a href="admin.php?page=kamar&edit=<?= $k['id'] ?>" class="admin-btn admin-btn-outline admin-btn-sm">✏️</a>
+              <!-- Form Hapus dengan Konfirmasi -->
               <form method="post" style="display:inline;" onsubmit="return confirm('Hapus kamar <?= $k['nama'] ?>?')">
                 <input type="hidden" name="action" value="hapus_kamar">
                 <input type="hidden" name="id" value="<?= $k['id'] ?>">
@@ -93,7 +106,7 @@ $terisi   = count($kamar_data) - $tersedia;
     </div>
   </div>
 
-  <!-- Form Tambah / Edit Kamar -->
+  <!-- ===== KOLOM KANAN: FORM TAMBAH / EDIT KAMAR ===== -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title" style="color:#1e293b;"><?= $edit_kamar ? '✏️ Edit Kamar' : '➕ Tambah Kamar' ?></span>
@@ -102,6 +115,7 @@ $terisi   = count($kamar_data) - $tersedia;
       <?php endif; ?>
     </div>
     <div class="admin-card-body">
+      <!-- Form ini mengirim data ke admin/actions/kamar.php melalui POST -->
       <form method="post" enctype="multipart/form-data">
         <input type="hidden" name="action" value="save_kamar">
         <input type="hidden" name="edit_id" value="<?= $edit_kamar['id'] ?? 0 ?>">
@@ -146,7 +160,7 @@ $terisi   = count($kamar_data) - $tersedia;
                  value="<?= $edit_kamar['fasilitas'] ?? '' ?>">
         </div>
 
-        <!-- ===== FOTO KAMAR ===== -->
+        <!-- ===== UPLOAD FOTO KAMAR ===== -->
         <div class="admin-form-group">
           <label style="color:#1e293b;">Foto Kamar <span style="text-transform:none;letter-spacing:0;font-weight:400;color:#94a3b8;">(opsional, max 5MB)</span></label>
           <?php if ($edit_kamar && !empty($edit_kamar['foto'])): ?>

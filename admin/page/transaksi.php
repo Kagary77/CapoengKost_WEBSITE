@@ -1,6 +1,17 @@
 <?php
+/**
+ * ================================================================
+ *  VIEW: MANAJEMEN TRANSAKSI (ADMIN)
+ *  - Menampilkan daftar semua transaksi dengan filter status.
+ *  - Statistik: Terkirim, Pending, Lunas, Gagal.
+ *  - Aksi: Validasi tagihan pending (Lunas / Gagal).
+ *  - Form: Buat tagihan baru (status awal = 'terkirim').
+ * ================================================================
+ */
+
 $transaksi_all = getTransaksiAll();
 
+// ---- KELOMPOKKAN DATA BERDASARKAN STATUS ----
 $terkirim  = array_filter($transaksi_all, fn($t) => $t['status'] === 'terkirim');
 $pending   = array_filter($transaksi_all, fn($t) => $t['status'] === 'pending');
 $lunas     = array_filter($transaksi_all, fn($t) => $t['status'] === 'lunas');
@@ -12,14 +23,17 @@ $total_lunas    = count($lunas);
 $total_gagal    = count($gagal);
 $total_lunas_nominal = array_sum(array_column(array_values($lunas), 'jumlah'));
 
+// ---- FILTER BERDASARKAN PARAMETER URL ----
 $filter_status = $_GET['status'] ?? 'semua';
 $filtered = $transaksi_all;
 if ($filter_status !== 'semua') {
     $filtered = array_filter($transaksi_all, fn($t) => $t['status'] === $filter_status);
 }
 
+// Data master untuk dropdown kamar di form tambah tagihan
 $kamar_data = getKamarData();
 
+// Mapping badge untuk setiap status
 $badge_map = [
     'terkirim' => ['class' => 'admin-badge-terkirim', 'label' => 'Terkirim'],
     'pending'  => ['class' => 'admin-badge-pending',  'label' => 'Pending'],
@@ -28,6 +42,7 @@ $badge_map = [
 ];
 ?>
 
+<!-- ===== STATISTIK CARD ===== -->
 <div class="admin-stats-grid" style="grid-template-columns:repeat(5,1fr);">
   <div class="admin-stat-card">
     <div class="admin-stat-icon">📨</div>
@@ -55,8 +70,10 @@ $badge_map = [
   </div>
 </div>
 
+<!-- ===== TABEL DAFTAR TRANSAKSI + FORM TAMBAH ===== -->
 <div class="admin-grid-2" style="align-items:start;">
 
+  <!-- DAFTAR TRANSAKSI -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">💳 Daftar Transaksi</span>
@@ -105,13 +122,15 @@ $badge_map = [
           <td>
             <div style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;justify-content:flex-start;">
               <?php if ($t['status'] === 'pending'): ?>
+                <!-- Form Validasi: Lunas atau Gagal -->
                 <form method="post" style="display:flex;gap:3px;">
                   <input type="hidden" name="action" value="validasi_transaksi">
                   <input type="hidden" name="id" value="<?= $t['id'] ?>">
-                  <button type="submit" name="status" value="lunas" class="admin-btn admin-btn-success admin-btn-sm" title="Setujui">✔</button>
-                  <button type="submit" name="status" value="gagal" class="admin-btn admin-btn-danger admin-btn-sm" title="Tolak">✖</button>
+                  <button type="submit" name="status" value="lunas" class="admin-btn admin-btn-success admin-btn-sm" title="Setujui (Lunas)">✔</button>
+                  <button type="submit" name="status" value="gagal" class="admin-btn admin-btn-danger admin-btn-sm" title="Tolak (Gagal)">✖</button>
                 </form>
               <?php endif; ?>
+              <!-- Hapus Transaksi -->
               <form method="post" style="display:inline;" onsubmit="return confirm('Hapus transaksi ini?')">
                 <input type="hidden" name="action" value="hapus_transaksi">
                 <input type="hidden" name="id" value="<?= $t['id'] ?>">
@@ -127,6 +146,7 @@ $badge_map = [
     <?php endif; ?>
   </div>
 
+  <!-- FORM TAMBAH TAGIHAN BARU -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">➕ Buat Tagihan Baru</span>
@@ -181,6 +201,7 @@ $badge_map = [
         </div>
       </form>
 
+      <!-- Ringkasan Bulan Ini -->
       <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #e5e7eb;">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#475569;margin-bottom:.75rem;">📊 Ringkasan Bulan Ini</div>
         <?php

@@ -1,9 +1,18 @@
 <?php
-// ============================================================
-//  ACTION: Penghuni (Admin) — CRUD dengan validasi kamar unik
-//  Menggunakan password_hash untuk keamanan
-// ============================================================
+/**
+ * ================================================================
+ *  ACTION: PENGHUNI (ADMIN)
+ *  - Menangani CRUD data penghuni (Tambah, Reset Password, Hapus).
+ *  - Status kamar otomatis berubah saat penghuni ditambahkan/dihapus.
+ *  - Password menggunakan password_hash() untuk keamanan.
+ * ================================================================
+ */
 
+// =================================================================
+//  AKSI 1: TAMBAH PENGHUNI BARU
+//  - Validasi: cek duplikat email dan nomor kamar.
+//  - Status kamar otomatis menjadi 'terisi'.
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tambah_penghuni') {
     $db        = getDB();
     $nama      = sanitize($_POST['nama'] ?? '');
@@ -38,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
             }
         }
 
-        // Gunakan password_hash, bukan md5
+        // Hash password dengan bcrypt
         $hashed = password_hash($password, PASSWORD_DEFAULT);
 
         if ($db) {
@@ -63,7 +72,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
     redirect('admin.php?page=penghuni');
 }
 
-// Handle reset password — sekarang menggunakan password_hash
+// =================================================================
+//  AKSI 2: RESET PASSWORD
+//  - Reset password penghuni ke 'penghuni123' (hash bcrypt).
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset_password') {
     $db  = getDB();
     $id  = (int)($_POST['id'] ?? 0);
@@ -79,7 +91,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset
     redirect('admin.php?page=penghuni');
 }
 
-// Handle hapus penghuni — sekalian update status kamar
+// =================================================================
+//  AKSI 3: HAPUS PENGHUNI
+//  - Hapus data penghuni.
+//  - Status kamar otomatis kembali menjadi 'tersedia'.
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus_penghuni') {
     $db = getDB();
     $id = (int)($_POST['id'] ?? 0);
@@ -93,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus
             $stmt2 = $db->prepare("DELETE FROM tb_users WHERE id=? AND role='penghuni'");
             $stmt2->bind_param('i', $id);
             $stmt2->execute();
+            // Kembalikan status kamar ke tersedia
             $stmt3 = $db->prepare("UPDATE tb_kamar SET status = 'tersedia' WHERE nama = ?");
             $stmt3->bind_param('s', $no_kamar);
             $stmt3->execute();

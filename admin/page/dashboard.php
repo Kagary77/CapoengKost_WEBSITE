@@ -1,17 +1,29 @@
 <?php
+/**
+ * ================================================================
+ *  VIEW: DASHBOARD ADMIN
+ *  - Menampilkan ringkasan statistik utama.
+ *  - Menyajikan data kamar, penghuni, komplain, dan transaksi.
+ *  - Bagian 'Aksi Cepat' untuk akses langsung ke fitur utama.
+ * ================================================================
+ */
+
+// Ambil semua data master
 $kamar_all     = getKamarData();
 $komplain_all  = getKomplainAll();
 $transaksi_all = getTransaksiAll();
 
+// ---- Statistik Kamar ----
 $total_kamar   = count($kamar_all);
 $tersedia      = count(array_filter($kamar_all, fn($k) => $k['status'] === 'tersedia'));
 $terisi        = $total_kamar - $tersedia;
 
+// ---- Statistik Komplain ----
 $komplain_baru = count(array_filter($komplain_all, fn($k) => $k['status'] === 'baru'));
 $komplain_pros = count(array_filter($komplain_all, fn($k) => $k['status'] === 'diproses'));
 $komplain_done = count(array_filter($komplain_all, fn($k) => $k['status'] === 'selesai'));
 
-// ===== PERBAIKAN: Statistik transaksi dengan status baru =====
+// ---- Statistik Transaksi (Alur Baru) ----
 $terkirim_list = array_filter($transaksi_all, fn($t) => $t['status'] === 'terkirim');
 $pending_list  = array_filter($transaksi_all, fn($t) => $t['status'] === 'pending');
 $lunas_list    = array_filter($transaksi_all, fn($t) => $t['status'] === 'lunas');
@@ -24,11 +36,12 @@ $total_gagal    = count($gagal_list);
 $total_pendapatan = array_sum(array_column(array_values($lunas_list), 'jumlah'));
 $total_belum_lunas = $total_terkirim + $total_pending + $total_gagal;
 
+// ---- Statistik Penghuni (Dummy / Demo) ----
 $users_all = getDemoData('users');
 $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'penghuni'));
 ?>
 
-<!-- Stats Row 1 -->
+<!-- ===== BARIS 1: 4 STATISTIK UTAMA ===== -->
 <div class="admin-stats-grid">
   <div class="admin-stat-card accent">
     <div class="admin-stat-icon">🏠</div>
@@ -56,9 +69,10 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
   </div>
 </div>
 
-<!-- Row 2: Quick Action + Status Kamar -->
+<!-- ===== BARIS 2: AKSI CEPAT & STATUS HUNIAN ===== -->
 <div class="admin-grid-2">
 
+  <!-- Grid Aksi Cepat -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">⚡ Aksi Cepat</span>
@@ -85,12 +99,14 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
     </div>
   </div>
 
+  <!-- Grafik Status Kamar -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">🏠 Status Hunian Kamar</span>
       <a href="admin.php?page=kamar" class="admin-btn admin-btn-outline admin-btn-sm">Kelola →</a>
     </div>
     <div class="admin-card-body">
+      <!-- Progress Bar Hunian -->
       <div style="margin-bottom:1rem;">
         <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
           <span style="font-size:11px;color:#475569;">Tingkat Hunian</span>
@@ -100,6 +116,7 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
           <div style="background:linear-gradient(90deg,#0F6E56,#4ade80);height:100%;width:<?= round($terisi/$total_kamar*100) ?>%;border-radius:9px;transition:width .5s;"></div>
         </div>
       </div>
+      <!-- Grid Miniatur Kamar -->
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">
         <?php foreach($kamar_all as $k): ?>
         <div title="<?= $k['nama'] ?> — <?= ucfirst($k['status']) ?>"
@@ -109,6 +126,7 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
         </div>
         <?php endforeach; ?>
       </div>
+      <!-- Legenda -->
       <div style="display:flex;gap:12px;margin-top:1rem;font-size:11px;">
         <span><span style="display:inline-block;width:10px;height:10px;background:#0F6E56;border-radius:3px;margin-right:4px;"></span>Terisi (<?= $terisi ?>)</span>
         <span><span style="display:inline-block;width:10px;height:10px;background:#e5e7eb;border:1px dashed #94a3b8;border-radius:3px;margin-right:4px;"></span>Tersedia (<?= $tersedia ?>)</span>
@@ -118,9 +136,10 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
 
 </div>
 
-<!-- Row 3: Komplain terbaru + Tagihan Pending (belum divalidasi admin) -->
+<!-- ===== BARIS 3: KOMPLAIN TERBARU & TAGIHAN PENDING ===== -->
 <div class="admin-grid-2">
 
+  <!-- Komplain Terbaru -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">📋 Komplain Terbaru</span>
@@ -151,6 +170,7 @@ $total_penghuni = count(array_filter($users_all, fn($u) => $u['role'] === 'pengh
     <?php endif; ?>
   </div>
 
+  <!-- Tagihan Menunggu Validasi (Pending) -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title">⏳ Tagihan Menunggu Validasi</span>

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= $pageTitle ?? 'Dashboard' ?> — Admin Panel</title>
 
+<!-- Google Fonts & CSS -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css"> 
@@ -13,15 +14,24 @@
 <body class="admin-body">
 
 <?php
+/**
+ * ================================================================
+ *  BLOK: PERSIAPAN DATA UNTUK SIDEBAR
+ *  - Mengambil semua data master (kamar, komplain, transaksi) untuk
+ *    keperluan menampilkan badge notifikasi di menu navigasi.
+ * ================================================================
+ */
 $kamar_all     = getKamarData();
 $komplain_all  = getKomplainAll();
 $transaksi_all = getTransaksiAll();
+
+// Statistik untuk badge "Komplain Baru"
 $komplain_baru = count(array_filter($komplain_all, fn($k) => $k['status'] === 'baru'));
 
-// ===== UPDATE: badge transaksi menghitung status PENDING (menunggu validasi admin) =====
+// Statistik untuk badge "Transaksi Pending" (menunggu validasi admin)
 $pending_transaksi = count(array_filter($transaksi_all, fn($t) => $t['status'] === 'pending'));
 
-// Hitung pesan baru
+// Statistik untuk badge "Pesan Baru"
 $db_pesan = getDB();
 if ($db_pesan) {
     $result = $db_pesan->query("SELECT COUNT(*) as total FROM tb_pesan WHERE status='baru'");
@@ -31,7 +41,7 @@ if ($db_pesan) {
     $pesan_baru = count(array_filter($_SESSION['demo_pesan'] ?? [], fn($p) => $p['status'] === 'baru'));
 }
 
-// Hitung booking baru
+// Statistik untuk badge "Booking Menunggu"
 $db_booking = getDB();
 if ($db_booking) {
     $result = $db_booking->query("SELECT COUNT(*) as total FROM tb_booking WHERE status='menunggu'");
@@ -42,9 +52,13 @@ if ($db_booking) {
 }
 ?>
 
+<!-- ================================================================
+     STRUKTUR LAYOUT: Sidebar (Kiri) + Main Content (Kanan)
+     ================================================================ -->
 <div class="admin-layout">
   <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
 
+  <!-- ===== SIDEBAR ===== -->
   <aside class="admin-sidebar" id="sidebar">
     <div class="admin-sidebar-header">
       <div class="admin-brand">
@@ -57,7 +71,7 @@ if ($db_booking) {
     </div>
 
     <nav class="admin-nav">
-      <!-- UTAMA -->
+      <!-- Section 1: Utama -->
       <div class="admin-nav-section">
         <div class="admin-nav-label">Utama</div>
         <a href="admin.php?page=dashboard" class="admin-nav-item <?= $activePage==='dashboard'?'active':'' ?>">
@@ -65,7 +79,7 @@ if ($db_booking) {
         </a>
       </div>
 
-      <!-- KELOLA DATA -->
+      <!-- Section 2: Kelola Data (Core Business) -->
       <div class="admin-nav-section">
         <div class="admin-nav-label">Kelola Data</div>
         <a href="admin.php?page=kamar" class="admin-nav-item <?= $activePage==='kamar'?'active':'' ?>">
@@ -101,6 +115,7 @@ if ($db_booking) {
       </div>
     </nav>
 
+    <!-- ===== FOOTER SIDEBAR (Profil Admin & Logout) ===== -->
     <div class="admin-sidebar-footer">
       <div class="admin-user-card">
         <div class="admin-user-avatar">
@@ -117,7 +132,9 @@ if ($db_booking) {
     </div>
   </aside>
 
+  <!-- ===== MAIN CONTENT (Kanan) ===== -->
   <div class="admin-main">
+    <!-- Topbar -->
     <header class="admin-topbar">
       <div style="display:flex;align-items:center;gap:12px;">
         <button class="hamburger" onclick="openSidebar()" aria-label="Menu">
@@ -135,7 +152,13 @@ if ($db_booking) {
 
     <main class="admin-page-content">
 <?php
-// Toast
+/**
+ * ================================================================
+ *  TOAST NOTIFICATION (Pesan Sukses/Error)
+ *  - Ditampilkan setelah proses redirect dari action.
+ *  - Menggunakan session flash data yang di-unset setelah ditampilkan.
+ * ================================================================
+ */
 $toast_msg  = $_SESSION['toast_msg']  ?? null;
 $toast_type = $_SESSION['toast_type'] ?? '';
 unset($_SESSION['toast_msg'], $_SESSION['toast_type']);

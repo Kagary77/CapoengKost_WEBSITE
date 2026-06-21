@@ -1,9 +1,15 @@
 <?php
-// ============================================================
-//  ACTION: Pesan (Admin) — Hapus & Update Status
-// ============================================================
+/**
+ * ================================================================
+ *  ACTION: PESAN (ADMIN)
+ *  - Update status pesan (baru → dibaca → dibalas).
+ *  - Hapus pesan dari sistem.
+ * ================================================================
+ */
 
-// Handle update status pesan
+// =================================================================
+//  AKSI 1: UPDATE STATUS PESAN
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_status_pesan') {
     $id     = (int)($_POST['id'] ?? 0);
     $status = sanitize($_POST['status'] ?? '');
@@ -26,7 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'updat
     redirect('admin.php?page=pesan');
 }
 
-// Handle hapus pesan
+// =================================================================
+//  AKSI 2: HAPUS PESAN
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus_pesan') {
     $id = (int)($_POST['id'] ?? 0);
     if ($id) {

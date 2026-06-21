@@ -1,9 +1,15 @@
 <?php
-// ============================================================
-//  VIEW: Manajemen Pesan (Admin)
-// ============================================================
+/**
+ * ================================================================
+ *  VIEW: MANAJEMEN PESAN (ADMIN)
+ *  - Menampilkan daftar pesan masuk dari tamu/penghuni.
+ *  - Statistik: Total, Baru, Dibaca, Dibalas.
+ *  - Fitur: Update status (dropdown langsung di tabel), Detail (modal), Balas via WhatsApp, Hapus.
+ *  - Detail modal menampilkan isi pesan dan link untuk balas langsung ke WhatsApp.
+ * ================================================================
+ */
 
-// Ambil data pesan dari database atau session demo
+// Ambil data pesan dari database/session
 $db = getDB();
 if ($db) {
     $result = $db->query("SELECT * FROM tb_pesan ORDER BY id DESC");
@@ -13,20 +19,20 @@ if ($db) {
     $pesan_list = $_SESSION['demo_pesan'] ?? [];
 }
 
-// Filter status
-$filter_status = $_GET['status'] ?? 'semua';
-if ($filter_status !== 'semua') {
-    $pesan_list = array_filter($pesan_list, fn($p) => $p['status'] === $filter_status);
-}
-
-// Hitung statistik
+// ---- STATISTIK ----
 $total_all  = count($pesan_list);
 $total_baru = count(array_filter($pesan_list ?? [], fn($p) => $p['status'] === 'baru'));
 $total_dibaca = count(array_filter($pesan_list ?? [], fn($p) => $p['status'] === 'dibaca'));
 $total_dibalas = count(array_filter($pesan_list ?? [], fn($p) => $p['status'] === 'dibalas'));
+
+// ---- FILTER ----
+$filter_status = $_GET['status'] ?? 'semua';
+if ($filter_status !== 'semua') {
+    $pesan_list = array_filter($pesan_list, fn($p) => $p['status'] === $filter_status);
+}
 ?>
 
-<!-- Stats -->
+<!-- ===== STATISTIK CARD ===== -->
 <div class="admin-stats-grid" style="grid-template-columns:repeat(4,1fr);">
   <div class="admin-stat-card">
     <div class="admin-stat-icon">📩</div>
@@ -50,6 +56,7 @@ $total_dibalas = count(array_filter($pesan_list ?? [], fn($p) => $p['status'] ==
   </div>
 </div>
 
+<!-- ===== TABEL DAFTAR PESAN ===== -->
 <div class="admin-card">
   <div class="admin-card-header">
     <span class="admin-card-title">📩 Daftar Pesan Masuk</span>
@@ -97,6 +104,7 @@ $total_dibalas = count(array_filter($pesan_list ?? [], fn($p) => $p['status'] ==
           <?= htmlspecialchars(mb_strimwidth($p['pesan'], 0, 50, '...')) ?>
         </td>
         <td>
+          <!-- Form Update Status langsung di tabel -->
           <form method="post" style="display:inline;">
             <input type="hidden" name="action" value="update_status_pesan">
             <input type="hidden" name="id" value="<?= $p['id'] ?>">
@@ -111,7 +119,7 @@ $total_dibalas = count(array_filter($pesan_list ?? [], fn($p) => $p['status'] ==
         <td style="font-size:11px;color:#94a3b8;"><?= date('d/m/Y H:i', strtotime($p['created_at'])) ?></td>
         <td>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
-            <!-- Tombol Detail / Balas (WhatsApp) -->
+            <!-- Balas via WhatsApp -->
             <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $p['no_hp']) ?>?text=Halo%20<?= urlencode($p['nama']) ?>%2C%20saya%20dari%20Kost%20Putri%20Capoeng.%20Pesan%20Anda%3A%20<?= urlencode($p['pesan']) ?>"
                target="_blank" class="admin-btn admin-btn-success admin-btn-sm" title="Balas via WhatsApp">
               💬
@@ -171,6 +179,7 @@ $total_dibalas = count(array_filter($pesan_list ?? [], fn($p) => $p['status'] ==
   </div>
 </div>
 
+<!-- ===== JAVASCRIPT UNTUK MODAL DETAIL ===== -->
 <script>
 function openDetailPesan(id, nama, nohp, topik, pesan, status) {
   document.getElementById('detail-nama').textContent = nama;

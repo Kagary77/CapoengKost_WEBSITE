@@ -1,9 +1,18 @@
 <?php
-// ============================================================
-//  ACTION: Transaksi (Admin) — ALUR BARU
-// ============================================================
+/**
+ * ================================================================
+ *  ACTION: TRANSAKSI (ADMIN)
+ *  - Menangani semua proses POST yang berasal dari halaman transaksi.
+ *  - Fungsi: Buat tagihan baru, validasi tagihan (Lunas/Gagal), hapus.
+ *  - Dijalankan SEBELUM view admin/page/transaksi.php dicetak.
+ * ================================================================
+ */
 
-// Tambah tagihan baru → status 'terkirim'
+// =================================================================
+//  AKSI 1: TAMBAH TAGIHAN BARU
+//  - Input: nama, no_kamar, bulan, jumlah, metode.
+//  - Status otomatis di-set menjadi 'terkirim' (menunggu aksi penghuni).
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tambah_tagihan') {
     $nama      = sanitize($_POST['nama'] ?? '');
     $no_kamar  = sanitize($_POST['no_kamar'] ?? '');
@@ -12,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
     $metode    = sanitize($_POST['metode'] ?? '-');
 
     if ($nama && $no_kamar && $bulan_raw && $jumlah) {
+        // Konversi bulan dari format YYYY-MM ke nama bulan Indonesia
         $bulan_timestamp = strtotime($bulan_raw . '-01');
         $bulan_en = date('F Y', $bulan_timestamp);
         $bulan_id = [
@@ -22,6 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
         ];
         $bulan = str_replace(array_keys($bulan_id), array_values($bulan_id), $bulan_en);
 
+        // Panggil fungsi buatTagihan() dari config.php
         if (buatTagihan($nama, $no_kamar, $bulan, $jumlah, $metode)) {
             $_SESSION['toast_msg']  = 'Tagihan baru berhasil dikirim ke penghuni (status: terkirim).';
             $_SESSION['toast_type'] = 'success';
@@ -36,7 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
     redirect('admin.php?page=transaksi');
 }
 
-// Validasi transaksi (lunas / gagal) oleh admin
+// =================================================================
+//  AKSI 2: VALIDASI TRANSAKSI (LUNAS / GAGAL)
+//  - Hanya dapat dilakukan pada transaksi berstatus 'pending'.
+//  - Jika 'lunas' → status menjadi 'lunas', tanggal tercatat.
+//  - Jika 'gagal' → status otomatis kembali ke 'terkirim' (dikirim ulang).
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'validasi_transaksi') {
     $id     = (int)($_POST['id'] ?? 0);
     $status = sanitize($_POST['status'] ?? '');
@@ -58,7 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'valid
     redirect('admin.php?page=transaksi');
 }
 
-// Hapus transaksi
+// =================================================================
+//  AKSI 3: HAPUS TRANSAKSI
+//  - Menghapus data transaksi dari database/session demo.
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus_transaksi') {
     $db = getDB();
     $id = (int)($_POST['id'] ?? 0);
@@ -67,6 +86,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus
         $stmt->bind_param('i', $id);
         $stmt->execute();
     } elseif ($id) {
+        // Mode demo: hapus dari session
         $_SESSION['demo_transaksi'] = array_values(
             array_filter($_SESSION['demo_transaksi'] ?? [], fn($t) => $t['id'] != $id)
         );

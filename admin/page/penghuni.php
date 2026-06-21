@@ -1,9 +1,15 @@
 <?php
-// ============================================================
-//  VIEW: Data Penghuni (Admin)
-//  Status kamar otomatis dikelola sistem
-// ============================================================
+/**
+ * ================================================================
+ *  VIEW: DATA PENGHUNI (ADMIN)
+ *  - Menampilkan daftar semua penghuni dengan detail (nama, kamar, kontak).
+ *  - Fitur: Lihat detail (modal), Reset Password, Hapus Penghuni.
+ *  - Form untuk menambahkan penghuni baru.
+ *  - Status kamar otomatis berubah saat penghuni ditambahkan/dihapus.
+ * ================================================================
+ */
 
+// Ambil data penghuni dari database/session (hanya role='penghuni')
 $db = getDB();
 if ($db) {
     $result   = $db->query("SELECT * FROM tb_users WHERE role='penghuni' ORDER BY no_kamar ASC");
@@ -13,12 +19,14 @@ if ($db) {
     $penghuni = array_filter(getDemoData('users'), fn($u) => $u['role'] === 'penghuni');
 }
 
+// Data kamar untuk keperluan cek status dan dropdown
 $kamar_data = getKamarData();
 ?>
 
+<!-- ===== GRID 2 KOLOM: TABEL + FORM TAMBAH ===== -->
 <div class="admin-grid-2" style="align-items:start;">
 
-  <!-- Tabel Penghuni -->
+  <!-- ===== KOLOM KIRI: TABEL PENGHUNI ===== -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title" style="color:#1e293b;">👩 Data Penghuni (<?= count($penghuni) ?>)</span>
@@ -53,6 +61,7 @@ $kamar_data = getKamarData();
           </td>
           <td style="text-align:center;">
             <?php
+            // Cek status kamar berdasarkan no_kamar
             $status_kamar = 'Tersedia';
             $status_color = '#dcfce7';
             $status_text_color = '#166534';
@@ -72,6 +81,7 @@ $kamar_data = getKamarData();
             </span>
           </td>
           <td style="text-align:center;">
+            <!-- Tombol Detail membuka modal dengan data penghuni -->
             <button onclick="openDetailPenghuni(
               '<?= addslashes($p['nama']) ?>',
               '<?= addslashes($p['email']) ?>',
@@ -84,11 +94,13 @@ $kamar_data = getKamarData();
           </td>
           <td>
             <div style="display:flex;gap:5px;flex-wrap:wrap;justify-content:center;">
+              <!-- Reset Password -->
               <form method="post" style="display:inline;" onsubmit="return confirm('Reset password <?= htmlspecialchars($p['nama']) ?>?')">
                 <input type="hidden" name="action" value="reset_password">
                 <input type="hidden" name="id" value="<?= $p['id'] ?>">
                 <button type="submit" class="admin-btn admin-btn-warning admin-btn-sm" title="Reset Password" style="padding:4px 8px;font-size:12px;">🔑</button>
               </form>
+              <!-- Hapus Penghuni -->
               <form method="post" style="display:inline;" onsubmit="return confirm('Hapus data <?= htmlspecialchars($p['nama']) ?>?')">
                 <input type="hidden" name="action" value="hapus_penghuni">
                 <input type="hidden" name="id" value="<?= $p['id'] ?>">
@@ -104,12 +116,13 @@ $kamar_data = getKamarData();
     <?php endif; ?>
   </div>
 
-  <!-- Form Tambah Penghuni -->
+  <!-- ===== KOLOM KANAN: FORM TAMBAH PENGHUNI BARU ===== -->
   <div class="admin-card">
     <div class="admin-card-header">
       <span class="admin-card-title" style="color:#1e293b;">➕ Tambah Penghuni Baru</span>
     </div>
     <div class="admin-card-body">
+      <!-- Form ini mengirim data ke admin/actions/penghuni.php -->
       <form method="post">
         <input type="hidden" name="action" value="tambah_penghuni">
         <div class="admin-form-row">
@@ -211,6 +224,7 @@ $kamar_data = getKamarData();
   </div>
 </div>
 
+<!-- ===== JAVASCRIPT UNTUK MODAL DETAIL ===== -->
 <script>
 function openDetailPenghuni(nama, email, nohp, kamar, alamat, pekerjaan, fotoktp) {
   document.getElementById('detail-nama').textContent = nama;

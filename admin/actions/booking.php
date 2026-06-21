@@ -1,9 +1,22 @@
 <?php
-// ============================================================
-//  ACTION: Booking (Admin) — Konfirmasi, Tolak, Hapus
-// ============================================================
+/**
+ * ================================================================
+ *  ACTION: BOOKING (ADMIN)
+ *  - Konfirmasi booking (setujui) → buat akun penghuni otomatis.
+ *  - Tolak booking.
+ *  - Hapus booking.
+ *  - Saat booking disetujui, sistem otomatis membuat akun penghuni
+ *    dan mencatat transaksi pertama dengan status 'lunas'.
+ * ================================================================
+ */
 
-// Handle konfirmasi booking (setujui)
+// =================================================================
+//  AKSI 1: KONFIRMASI / SETUJUI BOOKING
+//  - Ambil data booking dari database.
+//  - Buat akun penghuni baru.
+//  - Update status kamar menjadi 'terisi'.
+//  - Catat transaksi pertama.
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'konfirmasi_booking') {
     $id = (int)($_POST['id'] ?? 0);
     if ($id) {
@@ -16,14 +29,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'konfi
             $booking = $result->fetch_assoc();
 
             if ($booking && $booking['status'] === 'menunggu') {
+                // Update status booking
                 $stmt2 = $db->prepare("UPDATE tb_booking SET status = 'disetujui' WHERE id = ?");
                 $stmt2->bind_param('i', $id);
                 $stmt2->execute();
 
+                // Update status kamar menjadi terisi
                 $stmt3 = $db->prepare("UPDATE tb_kamar SET status = 'terisi' WHERE nama = ?");
                 $stmt3->bind_param('s', $booking['kamar_nama']);
                 $stmt3->execute();
 
+                // Buat akun penghuni otomatis
                 $email = strtolower(str_replace(' ', '.', $booking['nama'])) . '@booking.kost';
                 $password = md5('penghuni123');
                 $no_kamar = preg_replace('/[^A-Z0-9]/i', '', $booking['kamar_nama']);
@@ -39,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'konfi
                     $stmt5->bind_param('sssss', $booking['nama'], $email, $password, $no_kamar, $booking['no_hp']);
                     $stmt5->execute();
 
+                    // Catat transaksi pertama (lunas)
                     $bulan = $booking['periode'];
                     $stmt6 = $db->prepare(
                         "INSERT INTO tb_transaksi (nama, no_kamar, bulan, jumlah, metode, status, tanggal)
@@ -51,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'konfi
                 $_SESSION['toast_type'] = 'success';
             }
         } else {
+            // Mode demo
             foreach ($_SESSION['demo_booking'] as &$b) {
                 if ($b['id'] == $id && $b['status'] === 'menunggu') {
                     $b['status'] = 'disetujui';
@@ -65,7 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'konfi
     redirect('admin.php?page=booking');
 }
 
-// Handle tolak booking
+// =================================================================
+//  AKSI 2: TOLAK BOOKING
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tolak_booking') {
     $id = (int)($_POST['id'] ?? 0);
     if ($id) {
@@ -86,7 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tolak
     redirect('admin.php?page=booking');
 }
 
-// Handle hapus booking
+// =================================================================
+//  AKSI 3: HAPUS BOOKING
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus_booking') {
     $id = (int)($_POST['id'] ?? 0);
     if ($id) {

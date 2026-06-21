@@ -1,10 +1,20 @@
 <?php
-// ============================================================
-//  ACTION: Kamar (Admin) — CRUD dengan upload foto
-//  Status kamar dikelola otomatis oleh sistem
-// ============================================================
+/**
+ * ================================================================
+ *  ACTION: KAMAR (ADMIN)
+ *  - Menangani CRUD data kamar (Tambah, Edit, Hapus).
+ *  - Mendukung upload foto kamar.
+ *  - Status kamar ('tersedia'/'terisi') dikelola otomatis oleh sistem
+ *    (melalui proses tambah/hapus penghuni), jadi tidak diubah manual di sini.
+ * ================================================================
+ */
 
-// Handle tambah/edit kamar
+// =================================================================
+//  AKSI 1: TAMBAH / EDIT KAMAR
+//  - Jika edit_id = 0 → tambah baru.
+//  - Jika edit_id > 0 → update data.
+//  - Foto: jika ada upload baru, hapus foto lama terlebih dahulu.
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_kamar') {
     $db        = getDB();
     $nama      = sanitize($_POST['nama'] ?? '');
@@ -13,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     $fasilitas = sanitize($_POST['fasilitas'] ?? '');
     $edit_id   = (int)($_POST['edit_id'] ?? 0);
     
-    // Upload foto
+    // Proses upload foto jika ada
     $foto = null;
     if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
         $foto = uploadFotoKamar($_FILES['foto']);
@@ -23,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
             redirect('admin.php?page=kamar');
             exit;
         }
-        // Hapus foto lama jika ada
+        // Hapus foto lama jika sedang edit
         if ($edit_id > 0 && $db) {
             $stmt = $db->prepare("SELECT foto FROM tb_kamar WHERE id = ?");
             $stmt->bind_param('i', $edit_id);
@@ -35,9 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
         }
     }
 
+    // Validasi input
     if ($nama && $tipe && $harga) {
         if ($db) {
             if ($edit_id > 0) {
+                // Update dengan atau tanpa foto
                 if ($foto) {
                     $stmt = $db->prepare("UPDATE tb_kamar SET nama=?, tipe=?, harga=?, fasilitas=?, foto=? WHERE id=?");
                     $stmt->bind_param('ssissi', $nama, $tipe, $harga, $fasilitas, $foto, $edit_id);
@@ -47,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
                 }
                 $stmt->execute();
             } else {
+                // Insert baru
                 $stmt = $db->prepare("INSERT INTO tb_kamar (nama, tipe, harga, status, fasilitas, foto) VALUES (?, ?, ?, 'tersedia', ?, ?)");
                 $stmt->bind_param('ssiss', $nama, $tipe, $harga, $fasilitas, $foto);
                 $stmt->execute();
@@ -61,7 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'save_
     redirect('admin.php?page=kamar');
 }
 
-// Handle hapus kamar — sekalian hapus foto
+// =================================================================
+//  AKSI 2: HAPUS KAMAR
+//  - Cek apakah kamar sedang terisi oleh penghuni.
+//  - Jika terisi, tolak hapus dan beri peringatan.
+//  - Jika kosong, hapus data dan foto dari server.
+// =================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'hapus_kamar') {
     $db = getDB();
     $id = (int)($_POST['id'] ?? 0);

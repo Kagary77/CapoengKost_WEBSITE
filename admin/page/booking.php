@@ -1,8 +1,16 @@
 <?php
-// ============================================================
-//  VIEW: Manajemen Booking (Admin)
-// ============================================================
+/**
+ * ================================================================
+ *  VIEW: MANAJEMEN BOOKING (ADMIN)
+ *  - Menampilkan daftar booking dari tamu.
+ *  - Statistik: Total, Menunggu, Disetujui, Ditolak.
+ *  - Fitur: Konfirmasi (setujui), Tolak, Hapus, dan Hubungi via WhatsApp.
+ *  - Saat booking disetujui, sistem otomatis membuat akun penghuni
+ *    dan mencatat transaksi pertama (via admin/actions/booking.php).
+ * ================================================================
+ */
 
+// Ambil data booking dari database/session
 $db = getDB();
 if ($db) {
     $result = $db->query("SELECT * FROM tb_booking ORDER BY id DESC");
@@ -12,16 +20,19 @@ if ($db) {
     $booking_list = $_SESSION['demo_booking'] ?? [];
 }
 
+// ---- STATISTIK ----
+$total_menunggu = count(array_filter($booking_list ?? [], fn($b) => $b['status'] === 'menunggu'));
+$total_disetujui = count(array_filter($booking_list ?? [], fn($b) => $b['status'] === 'disetujui'));
+$total_ditolak = count(array_filter($booking_list ?? [], fn($b) => $b['status'] === 'ditolak'));
+
+// ---- FILTER ----
 $filter_status = $_GET['status'] ?? 'semua';
 if ($filter_status !== 'semua') {
     $booking_list = array_filter($booking_list, fn($b) => $b['status'] === $filter_status);
 }
-
-$total_menunggu = count(array_filter($booking_list ?? [], fn($b) => $b['status'] === 'menunggu'));
-$total_disetujui = count(array_filter($booking_list ?? [], fn($b) => $b['status'] === 'disetujui'));
-$total_ditolak = count(array_filter($booking_list ?? [], fn($b) => $b['status'] === 'ditolak'));
 ?>
 
+<!-- ===== STATISTIK CARD ===== -->
 <div class="admin-stats-grid" style="grid-template-columns:repeat(4,1fr);">
   <div class="admin-stat-card">
     <div class="admin-stat-icon">📋</div>
@@ -45,6 +56,7 @@ $total_ditolak = count(array_filter($booking_list ?? [], fn($b) => $b['status'] 
   </div>
 </div>
 
+<!-- ===== TABEL DAFTAR BOOKING ===== -->
 <div class="admin-card">
   <div class="admin-card-header">
     <span class="admin-card-title">📋 Daftar Booking</span>
@@ -107,19 +119,23 @@ $total_ditolak = count(array_filter($booking_list ?? [], fn($b) => $b['status'] 
         <td>
           <div style="display:flex;gap:4px;flex-wrap:wrap;">
             <?php if ($b['status'] === 'menunggu'): ?>
+              <!-- Form Konfirmasi / Setujui -->
               <form method="post" style="display:inline;">
                 <input type="hidden" name="action" value="konfirmasi_booking">
                 <input type="hidden" name="id" value="<?= $b['id'] ?>">
                 <button type="submit" class="admin-btn admin-btn-success admin-btn-sm" title="Setujui">✅</button>
               </form>
+              <!-- Form Tolak -->
               <form method="post" style="display:inline;">
                 <input type="hidden" name="action" value="tolak_booking">
                 <input type="hidden" name="id" value="<?= $b['id'] ?>">
                 <button type="submit" class="admin-btn admin-btn-danger admin-btn-sm" title="Tolak">❌</button>
               </form>
             <?php endif; ?>
+            <!-- Hubungi via WhatsApp -->
             <a href="https://wa.me/<?= preg_replace('/[^0-9]/', '', $b['no_hp']) ?>?text=Halo%20<?= urlencode($b['nama']) ?>%2C%20saya%20dari%20Kost%20Putri%20Capoeng.%20Booking%20kamar%20<?= urlencode($b['kamar_nama']) ?>%20Anda%20sedang%20kami%20proses."
                target="_blank" class="admin-btn admin-btn-success admin-btn-sm" title="Hubungi WA">💬</a>
+            <!-- Hapus Booking -->
             <form method="post" style="display:inline;" onsubmit="return confirm('Hapus booking ini?')">
               <input type="hidden" name="action" value="hapus_booking">
               <input type="hidden" name="id" value="<?= $b['id'] ?>">

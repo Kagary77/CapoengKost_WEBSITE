@@ -1,13 +1,30 @@
 <?php
-$komplain_all  = getKomplainAll();
-$filter_status = $_GET['status'] ?? 'semua';
-$detail_id     = (int)($_GET['detail'] ?? 0);
+/**
+ * ================================================================
+ *  VIEW: MANAJEMEN KOMPLAIN (ADMIN)
+ *  - Menampilkan daftar komplain dengan filter status.
+ *  - Statistik: Total, Baru, Diproses, Selesai.
+ *  - Fitur: Update status (dropdown langsung di tabel), Detail per komplain, Hapus.
+ *  - Detail view menampilkan informasi lengkap + deskripsi + foto (jika ada).
+ * ================================================================
+ */
 
+$komplain_all  = getKomplainAll();
+
+// ---- STATISTIK ----
+$cnt_baru     = count(array_filter($komplain_all, fn($k) => $k['status']==='baru'));
+$cnt_diproses = count(array_filter($komplain_all, fn($k) => $k['status']==='diproses'));
+$cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='selesai'));
+
+// ---- FILTER ----
+$filter_status = $_GET['status'] ?? 'semua';
 $filtered = $komplain_all;
 if ($filter_status !== 'semua') {
     $filtered = array_filter($komplain_all, fn($k) => $k['status'] === $filter_status);
 }
 
+// ---- DETAIL VIEW (jika parameter 'detail' ada) ----
+$detail_id = (int)($_GET['detail'] ?? 0);
 $detail = null;
 if ($detail_id) {
     foreach ($komplain_all as $k) {
@@ -15,11 +32,12 @@ if ($detail_id) {
     }
 }
 
-$cnt_baru     = count(array_filter($komplain_all, fn($k) => $k['status']==='baru'));
-$cnt_diproses = count(array_filter($komplain_all, fn($k) => $k['status']==='diproses'));
-$cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='selesai'));
+// Mapping badge untuk status
+$bdg = ['baru'=>'admin-badge-baru','diproses'=>'admin-badge-diproses','selesai'=>'admin-badge-selesai'];
+$lbl = ['baru'=>'Baru','diproses'=>'Diproses','selesai'=>'Selesai'];
 ?>
 
+<!-- ===== STATISTIK CARD ===== -->
 <div class="admin-stats-grid" style="grid-template-columns:repeat(4,1fr);">
   <div class="admin-stat-card"><div class="admin-stat-icon">📋</div><div class="admin-stat-val" style="color:#1e293b;"><?= count($komplain_all) ?></div><div class="admin-stat-lbl" style="color:#475569;">Total</div></div>
   <div class="admin-stat-card"><div class="admin-stat-icon">🔵</div><div class="admin-stat-val" style="color:#1e293b;"><?= $cnt_baru ?></div><div class="admin-stat-lbl" style="color:#475569;">Baru</div></div>
@@ -27,6 +45,7 @@ $cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='sele
   <div class="admin-stat-card"><div class="admin-stat-icon">🟢</div><div class="admin-stat-val" style="color:#1e293b;"><?= $cnt_selesai ?></div><div class="admin-stat-lbl" style="color:#475569;">Selesai</div></div>
 </div>
 
+<!-- ===== DETAIL KOMPLAIN (Jika ada) ===== -->
 <?php if ($detail): ?>
 <div class="admin-card" style="border-color:#0F6E56;">
   <div class="admin-card-header">
@@ -35,17 +54,17 @@ $cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='sele
   </div>
   <div class="admin-card-body">
     <div class="admin-grid-2">
+      <!-- Kolom Kiri: Data Pelapor -->
       <div>
         <div style="margin-bottom:.75rem;"><span style="font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;">Pelapor</span><div style="color:#1e293b;font-weight:600;margin-top:2px;"><?= htmlspecialchars($detail['nama']) ?></div></div>
         <div style="margin-bottom:.75rem;"><span style="font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;">No. Kamar</span><div style="color:#0F6E56;font-weight:700;margin-top:2px;font-size:1.1rem;"><?= $detail['no_kamar'] ?></div></div>
         <div style="margin-bottom:.75rem;"><span style="font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;">No. HP</span><div style="color:#1e293b;margin-top:2px;"><?= $detail['no_hp'] ?: '-' ?></div></div>
         <div><span style="font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;">Tanggal</span><div style="color:#1e293b;margin-top:2px;"><?= $detail['created_at'] ?></div></div>
       </div>
+      <!-- Kolom Kanan: Kategori, Status, Update Status, Foto -->
       <div>
         <div style="margin-bottom:.75rem;"><span style="font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;">Kategori</span><div style="color:#0F6E56;font-weight:600;margin-top:2px;"><?= $detail['kategori'] ?></div></div>
         <div style="margin-bottom:.75rem;"><span style="font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;">Status</span>
-          <?php $bdg=['baru'=>'admin-badge-baru','diproses'=>'admin-badge-diproses','selesai'=>'admin-badge-selesai'];
-                $lbl=['baru'=>'Baru','diproses'=>'Diproses','selesai'=>'Selesai']; ?>
           <div style="margin-top:4px;"><span class="admin-badge <?= $bdg[$detail['status']] ?? '' ?>"><?= $lbl[$detail['status']] ?? $detail['status'] ?></span></div>
         </div>
         <div>
@@ -71,6 +90,7 @@ $cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='sele
         <?php endif; ?>
       </div>
     </div>
+    <!-- Deskripsi Masalah -->
     <div style="margin-top:1rem;background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:1rem;">
       <div style="font-size:10px;color:#475569;font-weight:700;text-transform:uppercase;margin-bottom:6px;">Deskripsi Masalah</div>
       <div style="color:#1e293b;line-height:1.7;font-size:13px;"><?= nl2br(htmlspecialchars($detail['deskripsi'])) ?></div>
@@ -79,6 +99,7 @@ $cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='sele
 </div>
 <?php endif; ?>
 
+<!-- ===== TABEL DAFTAR KOMPLAIN ===== -->
 <div class="admin-card">
   <div class="admin-card-header">
     <span class="admin-card-title" style="color:#1e293b;">📋 Daftar Komplain</span>
@@ -106,16 +127,14 @@ $cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='sele
         </tr>
       </thead>
       <tbody>
-      <?php foreach($filtered as $k):
-        $bdg = ['baru'=>'admin-badge-baru','diproses'=>'admin-badge-diproses','selesai'=>'admin-badge-selesai'];
-        $lbl = ['baru'=>'Baru','diproses'=>'Diproses','selesai'=>'Selesai'];
-      ?>
+      <?php foreach($filtered as $k): ?>
       <tr>
         <td style="font-family:monospace;font-size:10px;font-weight:700;color:#475569;"><?= $k['no_tiket'] ?></td>
         <td style="font-weight:600;color:#1e293b;"><?= htmlspecialchars($k['nama']) ?></td>
         <td style="font-weight:700;color:#0F6E56;"><?= $k['no_kamar'] ?></td>
         <td style="font-size:11px;color:#475569;"><?= $k['kategori'] ?></td>
         <td>
+          <!-- Form Update Status langsung di tabel -->
           <form method="post" style="display:inline;">
             <input type="hidden" name="action" value="update_status">
             <input type="hidden" name="id" value="<?= $k['id'] ?>">
@@ -145,6 +164,7 @@ $cnt_selesai  = count(array_filter($komplain_all, fn($k) => $k['status']==='sele
           </div>
         </td>
       </tr>
+      <!-- Tampilkan deskripsi singkat di baris berikutnya -->
       <?php if(!empty($k['deskripsi'])): ?>
       <tr>
         <td colspan="7" style="padding:4px 14px 10px;font-size:11px;color:#475569;background:#f8fafc;">
