@@ -127,7 +127,6 @@ function uploadFotoKamar($file) {
     $target_dir = "uploads/kamar/";
     if (!is_dir($target_dir)) mkdir($target_dir, 0755, true);
 
-    // Ganti spasi dengan underscore agar URL aman
     $clean_name = str_replace(' ', '_', basename($file['name']));
     $filename = time() . '_' . $clean_name;
     $target_file = $target_dir . $filename;
@@ -395,26 +394,55 @@ function hapusBooking($id) {
 }
 
 // ============================================================
-//  USER / AUTH
+//  USER / AUTH (Dengan password_hash & otomatis upgrade MD5)
 // ============================================================
 function loginUser($email, $password) {
     $db = getDB();
-    $hashed = md5($password);
-
     if (!$db) {
+        // Mode demo — tetap pakai MD5 untuk demo data
         foreach (getDemoData('users') as $u) {
-            if ($u['email'] === $email && $u['password'] === $hashed) {
+            if ($u['email'] === $email && md5($password) === $u['password']) {
                 return $u;
             }
         }
         return null;
     }
 
-    $stmt = $db->prepare("SELECT * FROM tb_users WHERE email = ? AND password = ? LIMIT 1");
-    $stmt->bind_param('ss', $email, $hashed);
+    // Ambil user berdasarkan email saja
+    $stmt = $db->prepare("SELECT * FROM tb_users WHERE email = ? LIMIT 1");
+    $stmt->bind_param('s', $email);
     $stmt->execute();
     $result = $stmt->get_result();
-    return $result->fetch_assoc() ?: null;
+    $user = $result->fetch_assoc();
+
+    if (!$user) {
+        return null; // User tidak ditemukan
+    }
+
+    $stored_password = $user['password'];
+
+    // Cek apakah masih menggunakan MD5 (panjang 32 karakter)
+    if (strlen($stored_password) === 32) {
+        // Verifikasi dengan MD5
+        if (md5($password) === $stored_password) {
+            // Upgrade ke password_hash secara otomatis
+            $new_hash = password_hash($password, PASSWORD_DEFAULT);
+            $update_stmt = $db->prepare("UPDATE tb_users SET password = ? WHERE id = ?");
+            $update_stmt->bind_param('si', $new_hash, $user['id']);
+            $update_stmt->execute();
+
+            // Return user (tetap login)
+            return $user;
+        }
+        return null;
+    }
+
+    // Verifikasi dengan password_verify (bcrypt)
+    if (password_verify($password, $stored_password)) {
+        return $user;
+    }
+
+    return null;
 }
 
 function updateUserProfile($id, $nama, $no_hp, $alamat, $pekerjaan, $foto_ktp = null) {
@@ -453,7 +481,9 @@ function updateUserProfile($id, $nama, $no_hp, $alamat, $pekerjaan, $foto_ktp = 
 
 function updateUserPassword($id, $new_password) {
     $db = getDB();
-    $hashed = md5($new_password);
+    // Gunakan password_hash, bukan md5
+    $hashed = password_hash($new_password, PASSWORD_DEFAULT);
+
     if (!$db) {
         $_SESSION['user_pass'] = $hashed;
         return true;

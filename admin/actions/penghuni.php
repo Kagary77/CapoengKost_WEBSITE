@@ -1,6 +1,7 @@
 <?php
 // ============================================================
 //  ACTION: Penghuni (Admin) — CRUD dengan validasi kamar unik
+//  Menggunakan password_hash untuk keamanan
 // ============================================================
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tambah_penghuni') {
@@ -15,6 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
 
     if ($nama && $email && $no_kamar) {
         if ($db) {
+            // Cek duplikat kamar
             $stmt = $db->prepare("SELECT id FROM tb_users WHERE no_kamar = ?");
             $stmt->bind_param('s', $no_kamar);
             $stmt->execute();
@@ -24,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
                 redirect('admin.php?page=penghuni');
                 exit;
             }
+            // Cek duplikat email
             $stmt2 = $db->prepare("SELECT id FROM tb_users WHERE email = ?");
             $stmt2->bind_param('s', $email);
             $stmt2->execute();
@@ -35,9 +38,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
             }
         }
 
-        $hashed = md5($password);
+        // Gunakan password_hash, bukan md5
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+
         if ($db) {
-            // Foto KTP tidak diisi oleh admin, default NULL
             $stmt = $db->prepare(
                 "INSERT INTO tb_users (nama, email, password, role, no_kamar, no_hp, alamat_asal, pekerjaan)
                  VALUES (?, ?, ?, 'penghuni', ?, ?, ?, ?)"
@@ -45,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
             $stmt->bind_param('sssssss', $nama, $email, $hashed, $no_kamar, $no_hp, $alamat, $pekerjaan);
             $stmt->execute();
 
+            // Update status kamar menjadi terisi
             $stmt2 = $db->prepare("UPDATE tb_kamar SET status = 'terisi' WHERE nama = ?");
             $stmt2->bind_param('s', $no_kamar);
             $stmt2->execute();
@@ -58,14 +63,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
     redirect('admin.php?page=penghuni');
 }
 
-// Handle reset password
+// Handle reset password — sekarang menggunakan password_hash
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'reset_password') {
     $db  = getDB();
     $id  = (int)($_POST['id'] ?? 0);
     $new = 'penghuni123';
     if ($id && $db) {
+        $hashed = password_hash($new, PASSWORD_DEFAULT);
         $stmt = $db->prepare("UPDATE tb_users SET password=? WHERE id=?");
-        $hashed = md5($new);
         $stmt->bind_param('si', $hashed, $id);
         $stmt->execute();
     }
