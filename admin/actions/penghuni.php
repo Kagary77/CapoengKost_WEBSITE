@@ -37,9 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'tamba
 
         $hashed = md5($password);
         if ($db) {
+            // Foto KTP tidak diisi oleh admin, default NULL
             $stmt = $db->prepare(
-                "INSERT INTO tb_users (nama, email, password, role, no_kamar, no_hp, alamat_asal, pekerjaan, foto_ktp)
-                 VALUES (?, ?, ?, 'penghuni', ?, ?, ?, ?, NULL)"
+                "INSERT INTO tb_users (nama, email, password, role, no_kamar, no_hp, alamat_asal, pekerjaan)
+                 VALUES (?, ?, ?, 'penghuni', ?, ?, ?, ?)"
             );
             $stmt->bind_param('sssssss', $nama, $email, $hashed, $no_kamar, $no_hp, $alamat, $pekerjaan);
             $stmt->execute();
