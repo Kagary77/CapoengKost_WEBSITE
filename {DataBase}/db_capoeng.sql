@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 21, 2026 at 11:34 AM
+-- Generation Time: Jun 27, 2026 at 09:21 AM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -40,6 +40,14 @@ CREATE TABLE `tb_booking` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `tb_booking`
+--
+
+INSERT INTO `tb_booking` (`id`, `nama`, `no_hp`, `kamar_nama`, `kamar_harga`, `periode`, `metode`, `bukti`, `status`, `created_at`) VALUES
+(3, 'Asuma Toki', '081539823168', 'A2', 450000, 'Juni 2026', 'QRIS', '1782098491_NEGRO.png', 'menunggu', '2026-06-22 10:21:31'),
+(4, 'A2', '08888', 'A2', 450000, 'Mei 2026', 'Transfer Bank (BCA)', '1782099366_16.LEONARD_IMG_5063.JPG', 'disetujui', '2026-06-22 10:36:06');
+
 -- --------------------------------------------------------
 
 --
@@ -62,7 +70,7 @@ CREATE TABLE `tb_kamar` (
 
 INSERT INTO `tb_kamar` (`id`, `nama`, `tipe`, `harga`, `status`, `fasilitas`, `foto`) VALUES
 (11, 'A1', 'Standard', 450000, 'terisi', 'Kamar mandi dalam, Meja kecil, Lemari kecil, Kasur', 'kamar/1781989777_WhatsApp Image 2026-06-21 at 4.03.21 AM.jpeg'),
-(13, 'A2', 'Standard', 450000, 'tersedia', 'Kamar mandi dalam, Meja kecil, Lemari kecil, Kasur', ''),
+(13, 'A2', 'Standard', 450000, 'terisi', 'Kamar mandi dalam, Meja kecil, Lemari kecil, Kasur', ''),
 (14, 'A3', 'Standard', 450000, 'tersedia', 'Kamar mandi dalam, Meja kecil, Lemari kecil, Kasur', ''),
 (15, 'A4', 'Standard', 450000, 'tersedia', 'Kamar mandi dalam, Meja kecil, Lemari kecil, Kasur', ''),
 (16, 'A5', 'Standard', 450000, 'tersedia', 'Kamar mandi dalam, Meja kecil, Lemari kecil, Kasur', ''),
@@ -120,12 +128,19 @@ CREATE TABLE `tb_transaksi` (
   `bulan` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `jumlah` int DEFAULT NULL,
   `metode` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT '-',
-  `status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT 'belum_bayar',
+  `status` enum('terkirim','pending','lunas','gagal') COLLATE utf8mb4_unicode_ci DEFAULT 'terkirim',
   `tanggal` date DEFAULT NULL,
   `no_hp` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `bukti` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `catatan` text COLLATE utf8mb4_unicode_ci
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `tb_transaksi`
+--
+
+INSERT INTO `tb_transaksi` (`id`, `nama`, `no_kamar`, `bulan`, `jumlah`, `metode`, `status`, `tanggal`, `no_hp`, `bukti`, `catatan`) VALUES
+(18, 'A2', 'A2', 'Mei 2026', 450000, 'Transfer Bank (BCA)', 'lunas', '2026-06-22', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -152,8 +167,9 @@ CREATE TABLE `tb_users` (
 --
 
 INSERT INTO `tb_users` (`id`, `nama`, `email`, `password`, `role`, `no_kamar`, `no_hp`, `alamat_asal`, `pekerjaan`, `created_at`, `foto_ktp`) VALUES
-(1, 'Admin Kost', 'admin@kost.com', '0192023a7bbd73250516f069df18b500', 'admin', '-', '08111111111', 'Banyuwangi', 'Lainnya', '2026-06-17', NULL),
-(5, 'Asuma Toki', 'Asuma@gmail.com', '46b1619ace0c8daa0637c305bb2447bc', 'penghuni', 'A1', '081539823168', 'Palembang', 'Mahasiswa', '2026-06-17', 'ktp/1781981263_16.LEONARD_IMG_5063.JPG');
+(1, 'Admin Kost', 'admin@kost.com', '$2y$10$TDRONQz7Lj9F3TlHqXPeGuP52Fs91GdAnm51WXtuBPzFBJRmuxc9G', 'admin', '-', '08111111111', 'Banyuwangi', 'Lainnya', '2026-06-17', NULL),
+(5, 'Asuma Toki', 'Asuma@gmail.com', '$2y$10$OxR/2G3J1ofc4MQLXoZd5eapBDJXKxHTYcoR0mZFkdi0LhLGKh7oK', 'penghuni', 'A1', '081539823168', 'Palembang', 'Mahasiswa', '2026-06-17', 'ktp/1781981263_16.LEONARD_IMG_5063.JPG'),
+(8, 'A2', 'a2@booking.kost', '319078908845aa06103676f05e7a010c', 'penghuni', 'A2', '08888', '-', 'Mahasiswi', '2026-06-22', NULL);
 
 --
 -- Indexes for dumped tables
@@ -205,7 +221,7 @@ ALTER TABLE `tb_users`
 -- AUTO_INCREMENT for table `tb_booking`
 --
 ALTER TABLE `tb_booking`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tb_kamar`
@@ -217,25 +233,25 @@ ALTER TABLE `tb_kamar`
 -- AUTO_INCREMENT for table `tb_komplain`
 --
 ALTER TABLE `tb_komplain`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `tb_pesan`
 --
 ALTER TABLE `tb_pesan`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `tb_transaksi`
 --
 ALTER TABLE `tb_transaksi`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `tb_users`
 --
 ALTER TABLE `tb_users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
